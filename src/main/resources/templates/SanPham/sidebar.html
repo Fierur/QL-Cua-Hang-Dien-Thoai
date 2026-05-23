@@ -1,0 +1,12 @@
+<div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+<nav>
+    <a th:href="@{/}">🏠 Trang chủ</a>
+    <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+    <a th:href="@{/khachhang}" class="active">👥 Khách hàng</a>
+    <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+    <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+    <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+    <a th:href="@{/baocao}">📊 Báo cáo</a>
+    <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == '"'"'ADMIN'"'"'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+</nav>
+<div class="sidebar-footer">v1.0 - Quản lý cửa hàng Điện thoại</div>

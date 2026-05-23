@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Chi tiết hóa đơn</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        @media print { .sidebar, .topbar, .no-print { display: none !important; }
+            .main { margin-left: 0 !important; } }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}" class="active">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar no-print">
+        <h1>🧾 Chi tiết hóa đơn</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content" th:if="${hd != null}">
+        <div class="card" style="max-width:640px">
+            <!-- Header hóa đơn -->
+            <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px dashed #e2e8f0">
+                <h2 style="font-size:18px;font-weight:700">CỬA HÀNG ĐIỆN THOẠI</h2>
+                <p style="font-size:12px;color:#64748b">Số 123 Đường ABC, TP.HCM | SĐT: 028.xxxx.xxxx</p>
+                <h3 style="margin-top:12px;font-size:15px;letter-spacing:2px">HÓA ĐƠN BÁN HÀNG</h3>
+                <p style="font-size:13px;color:#6366f1;font-weight:600"
+                   th:text="'Số HD: HD' + ${hd.maHD}"></p>
+            </div>
+
+            <div class="info-grid" style="margin-bottom:16px">
+                <span class="info-label">Ngày lập</span>
+                <span class="info-value" th:text="${#temporals.format(hd.ngayLap,'dd/MM/yyyy')}"></span>
+
+                <span class="info-label">Khách hàng</span>
+                <span class="info-value"
+                      th:text="${hd.khachHang != null ? hd.khachHang.tenKH : 'Khách lẻ'}"></span>
+
+                <span th:if="${hd.khachHang != null}" class="info-label">SĐT</span>
+                <span th:if="${hd.khachHang != null}" class="info-value" th:text="${hd.khachHang.sdt}"></span>
+
+                <span class="info-label">Nhân viên bán</span>
+                <span class="info-value" th:text="${hd.taiKhoan?.hoTen}"></span>
+
+                <span class="info-label">Thanh toán</span>
+                <span class="info-value">
+                    <span th:if="${hd.hinhThucTT == 'TIEN_MAT'}"    class="badge badge-green">Tiền mặt</span>
+                    <span th:if="${hd.hinhThucTT == 'CHUYEN_KHOAN'}" class="badge badge-blue">Chuyển khoản</span>
+                    <span th:if="${hd.hinhThucTT == 'TRA_GOP'}"    class="badge badge-orange">Trả góp</span>
+                </span>
+            </div>
+
+            <!-- Chi tiết máy -->
+            <div class="table-wrap" style="margin-bottom:16px">
+                <table>
+                    <thead>
+                    <tr><th>Sản phẩm</th><th>IMEI</th><th>Đơn giá</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ct : ${hd.chiTiet}">
+                        <td th:text="${ct.sanPham?.tenSP}"></td>
+                        <td style="font-family:monospace;font-size:12px" th:text="${ct.id.imei}"></td>
+                        <td style="font-weight:600"
+                            th:text="${#numbers.formatDecimal(ct.donGia,0,'COMMA',0,'POINT')} + ' ₫'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tổng tiền -->
+            <div style="text-align:right;padding-top:12px;border-top:2px solid #e2e8f0">
+                <span style="font-size:15px;color:#64748b">Tổng cộng: </span>
+                <span style="font-size:20px;font-weight:700;color:#6366f1"
+                      th:text="${#numbers.formatDecimal(hd.tongTien,0,'COMMA',0,'POINT')} + ' ₫'"></span>
+            </div>
+
+            <div th:if="${hd.ghiChu}" style="margin-top:12px;font-size:13px;color:#64748b">
+                Ghi chú: <span th:text="${hd.ghiChu}"></span>
+            </div>
+
+            <div class="form-actions no-print" style="margin-top:20px">
+                <button onclick="window.print()" class="btn btn-primary">🖨️ In hóa đơn</button>
+                <a th:href="@{/hoadon}" class="btn btn-secondary">← Quay lại</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

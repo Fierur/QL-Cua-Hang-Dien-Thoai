@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Cập nhật bảo hành</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}" class="active">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>✏️ Cập nhật kết quả bảo hành</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content" th:if="${bh != null}">
+        <div class="card" style="max-width:620px">
+            <!-- Thông tin hiện tại -->
+            <div style="background:#f8fafc;border-radius:8px;padding:14px;margin-bottom:20px;font-size:13px">
+                <strong>Thông tin phiếu BH#<span th:text="${bh.maBH}"></span></strong><br>
+                IMEI: <code th:text="${bh.imeiEntity?.imei}"></code> |
+                Khách: <span th:text="${bh.khachHang?.tenKH}"></span> |
+                Ngày nhận: <span th:text="${#temporals.format(bh.ngayNhan,'dd/MM/yyyy')}"></span><br>
+                Tình trạng lỗi: <em th:text="${bh.tinhTrangLoi}"></em>
+            </div>
+
+            <div class="card-title">Kết quả xử lý</div>
+            <form action="/baohanh/luucapnhat" method="post">
+                <input type="hidden" name="maBH" th:value="${bh.maBH}">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label>Nguyên nhân lỗi *</label>
+                        <input type="text" name="nguyenNhan"
+                               th:value="${bh.nguyenNhan}"
+                               placeholder="Xác định nguyên nhân sau kiểm tra..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Hướng xử lý *</label>
+                        <select name="huongXuLy" required>
+                            <option value="DANG_XU_LY" th:selected="${bh.huongXuLy == 'DANG_XU_LY'}">🔄 Đang xử lý</option>
+                            <option value="SUA_XONG"   th:selected="${bh.huongXuLy == 'SUA_XONG'}">✅ Sửa xong - trả khách</option>
+                            <option value="DOI_MAY"    th:selected="${bh.huongXuLy == 'DOI_MAY'}">🔄 Đổi máy mới</option>
+                            <option value="TU_CHOI"    th:selected="${bh.huongXuLy == 'TU_CHOI'}">❌ Từ chối bảo hành</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ghi chú</label>
+                        <input type="text" name="ghiChu" th:value="${bh.ghiChu}">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-warning">💾 Lưu kết quả</button>
+                    <a th:href="@{/baohanh}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

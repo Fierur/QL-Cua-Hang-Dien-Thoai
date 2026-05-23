@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Khách hàng</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}" class="active">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>👥 Quản lý khách hàng</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="card">
+            <div class="toolbar">
+                <form method="get" th:action="@{/khachhang}" class="toolbar-left">
+                    <input class="search-input" type="text" name="keyword"
+                           th:value="${keyword}" placeholder="Tìm theo tên hoặc SĐT...">
+                    <button type="submit" class="btn btn-secondary">🔍 Tìm</button>
+                    <a th:href="@{/khachhang}" class="btn btn-secondary">Tất cả</a>
+                </form>
+                <a th:href="@{/khachhang/them}" class="btn btn-primary">+ Thêm khách hàng</a>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>#</th><th>Tên khách hàng</th><th>Số điện thoại</th>
+                        <th>Địa chỉ</th><th>Điểm tích lũy</th><th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="kh, i : ${dsKH}">
+                        <td th:text="${i.count}"></td>
+                        <td>
+                            <a th:href="@{/khachhang/chitiet/{id}(id=${kh.maKH})}"
+                               style="color:#6366f1;font-weight:500" th:text="${kh.tenKH}"></a>
+                        </td>
+                        <td th:text="${kh.sdt}"></td>
+                        <td th:text="${kh.diaChi}"></td>
+                        <td>
+                            <span class="badge badge-blue" th:text="${kh.diemTichLuy} + ' điểm'"></span>
+                        </td>
+                        <td style="white-space:nowrap">
+                            <a th:href="@{/khachhang/sua/{id}(id=${kh.maKH})}" class="btn btn-warning btn-sm">✏️ Sửa</a>
+                            <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}"
+                               th:href="@{/khachhang/xoa/{id}(id=${kh.maKH})}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Xóa khách hàng này?')">🗑️ Xóa</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(dsKH)}">
+                        <td colspan="6" style="text-align:center;color:#94a3b8;padding:24px">Chưa có khách hàng nào</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

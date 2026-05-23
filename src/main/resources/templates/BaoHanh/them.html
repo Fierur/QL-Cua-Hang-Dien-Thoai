@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Tiếp nhận bảo hành</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}" class="active">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>🔧 Tiếp nhận bảo hành</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="card" style="max-width:620px">
+            <div class="card-title">Thông tin tiếp nhận</div>
+            <form action="/baohanh/luu" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Số IMEI máy *</label>
+                        <input type="text" name="imeiStr" placeholder="Nhập IMEI máy cần bảo hành" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Khách hàng *</label>
+                        <select name="maKH" required>
+                            <option value="">-- Chọn khách hàng --</option>
+                            <option th:each="kh : ${dsKH}"
+                                    th:value="${kh.maKH}"
+                                    th:text="${kh.tenKH} + ' - ' + ${kh.sdt}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label>Tình trạng lỗi *</label>
+                        <textarea name="tinhTrangLoi" rows="3"
+                                  placeholder="Mô tả chi tiết lỗi khách mô tả..." required></textarea>
+                    </div>
+                    <div class="form-group full">
+                        <label>Ghi chú thêm</label>
+                        <input type="text" name="ghiChu" placeholder="Ghi chú nội bộ (nếu có)">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger">💾 Tiếp nhận</button>
+                    <a th:href="@{/baohanh}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

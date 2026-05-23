@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:fragment="page(title, content)">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${title} + ' - Quản Lý Cửa Hàng'">Quản Lý Cửa Hàng</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    📱 Cửa Hàng ĐT
+    <small>Quản lý hệ thống</small>
+  </div>
+  <nav>
+    <a th:href="@{/}" th:classappend="${#httpServletRequest.requestURI == '/' ? 'active' : ''}">
+      🏠 Trang chủ
+    </a>
+    <a th:href="@{/sanpham}" th:classappend="${#httpServletRequest.requestURI.startsWith('/sanpham') ? 'active' : ''}">
+      📦 Sản phẩm
+    </a>
+    <a th:href="@{/khachhang}" th:classappend="${#httpServletRequest.requestURI.startsWith('/khachhang') ? 'active' : ''}">
+      👥 Khách hàng
+    </a>
+    <a th:href="@{/hoadon}" th:classappend="${#httpServletRequest.requestURI.startsWith('/hoadon') ? 'active' : ''}">
+      🧾 Bán hàng
+    </a>
+    <a th:href="@{/phieunhap}" th:classappend="${#httpServletRequest.requestURI.startsWith('/phieunhap') ? 'active' : ''}">
+      📥 Nhập hàng
+    </a>
+    <a th:href="@{/baohanh}" th:classappend="${#httpServletRequest.requestURI.startsWith('/baohanh') ? 'active' : ''}">
+      🔧 Bảo hành
+    </a>
+    <a th:href="@{/baocao}" th:classappend="${#httpServletRequest.requestURI.startsWith('/baocao') ? 'active' : ''}">
+      📊 Báo cáo
+    </a>
+    <!-- Chỉ Admin thấy menu quản lý tài khoản -->
+    <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}"
+       th:href="@{/taikhoan}"
+       th:classappend="${#httpServletRequest.requestURI.startsWith('/taikhoan') ? 'active' : ''}">
+      🔑 Tài khoản
+    </a>
+  </nav>
+  <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <h1 th:text="${title}">Tiêu đề</h1>
+    <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}"
+                  class="admin-badge">ADMIN</span>
+      <span class="user-badge"
+            th:text="${session.taiKhoan != null ? session.taiKhoan.hoTen : ''}">
+            </span>
+      <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+    </div>
+  </div>
+  <div class="content" th:replace="${content}">
+    Nội dung trang
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Chi tiết khách hàng</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}" class="active">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>👥 Chi tiết khách hàng</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="card" style="max-width:560px" th:if="${kh != null}">
+            <h2 style="font-size:17px;margin-bottom:20px;color:#1e293b" th:text="${kh.tenKH}"></h2>
+            <div class="info-grid">
+                <span class="info-label">Mã khách hàng</span>
+                <span class="info-value" th:text="'KH' + ${kh.maKH}"></span>
+                <span class="info-label">Số điện thoại</span>
+                <span class="info-value" th:text="${kh.sdt}"></span>
+                <span class="info-label">Địa chỉ</span>
+                <span class="info-value" th:text="${kh.diaChi}"></span>
+                <span class="info-label">Điểm tích lũy</span>
+                <span class="info-value">
+                    <span class="badge badge-blue" th:text="${kh.diemTichLuy} + ' điểm'"></span>
+                </span>
+            </div>
+            <div class="form-actions" style="margin-top:24px">
+                <a th:href="@{/khachhang/sua/{id}(id=${kh.maKH})}" class="btn btn-warning">✏️ Sửa</a>
+                <a th:href="@{/khachhang}" class="btn btn-secondary">← Quay lại</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

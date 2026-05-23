@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Nhập hàng</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}" class="active">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>📥 Quản lý nhập hàng</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="card">
+            <div class="toolbar">
+                <span style="font-size:13px;color:#64748b">
+                    Tổng <strong th:text="${#lists.size(dsPN)}"></strong> phiếu nhập
+                </span>
+                <a th:href="@{/phieunhap/them}" class="btn btn-warning">+ Tạo phiếu nhập</a>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>#</th><th>Mã phiếu</th><th>Ngày nhập</th>
+                        <th>Nhà cung cấp</th><th>Nhân viên</th><th>Ghi chú</th><th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="pn, i : ${dsPN}">
+                        <td th:text="${i.count}"></td>
+                        <td><span class="badge badge-orange" th:text="'PN' + ${pn.maPN}"></span></td>
+                        <td th:text="${#temporals.format(pn.ngayNhap,'dd/MM/yyyy')}"></td>
+                        <td th:text="${pn.nhaCungCap?.tenNCC}"></td>
+                        <td th:text="${pn.taiKhoan?.hoTen}"></td>
+                        <td th:text="${pn.ghiChu}"></td>
+                        <td style="white-space:nowrap">
+                            <a th:href="@{/phieunhap/chitiet/{id}(id=${pn.maPN})}" class="btn btn-secondary btn-sm">👁 Xem</a>
+                            <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}"
+                               th:href="@{/phieunhap/xoa/{id}(id=${pn.maPN})}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Xóa phiếu nhập này?')">🗑️</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(dsPN)}">
+                        <td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">Chưa có phiếu nhập nào</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

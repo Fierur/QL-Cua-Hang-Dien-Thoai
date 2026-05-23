@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Quản lý tài khoản</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:href="@{/taikhoan}" class="active">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>🔑 Quản lý tài khoản</h1>
+        <div class="topbar-right">
+            <span class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="card">
+            <div class="toolbar">
+                <span style="font-size:13px;color:#64748b">
+                    Tổng <strong th:text="${#lists.size(dsTK)}"></strong> tài khoản
+                </span>
+                <a th:href="@{/taikhoan/them}" class="btn btn-primary">+ Thêm tài khoản</a>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>#</th><th>Tên đăng nhập</th><th>Họ tên</th>
+                        <th>SĐT</th><th>Vai trò</th><th>Trạng thái</th><th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="tk, i : ${dsTK}">
+                        <td th:text="${i.count}"></td>
+                        <td style="font-weight:600;font-family:monospace" th:text="${tk.tenDangNhap}"></td>
+                        <td th:text="${tk.hoTen}"></td>
+                        <td th:text="${tk.sdt}"></td>
+                        <td>
+                            <span th:if="${tk.vaiTro == 'ADMIN'}" class="badge badge-orange">ADMIN</span>
+                            <span th:if="${tk.vaiTro == 'STAFF'}" class="badge badge-blue">STAFF</span>
+                        </td>
+                        <td>
+                            <span th:if="${tk.trangThai == 1}" class="badge badge-green">Hoạt động</span>
+                            <span th:if="${tk.trangThai == 0}" class="badge badge-red">Đã khóa</span>
+                        </td>
+                        <td style="white-space:nowrap">
+                            <a th:href="@{/taikhoan/sua/{id}(id=${tk.maTK})}" class="btn btn-warning btn-sm">✏️ Sửa</a>
+                            <!-- Không tự khóa chính mình -->
+                            <a th:if="${session.taiKhoan?.maTK != tk.maTK}"
+                               th:href="@{/taikhoan/khoatk/{id}(id=${tk.maTK})}"
+                               th:class="${tk.trangThai == 1} ? 'btn btn-danger btn-sm' : 'btn btn-success btn-sm'"
+                               th:text="${tk.trangThai == 1} ? '🔒 Khóa' : '🔓 Mở'"
+                               onclick="return confirm('Xác nhận thay đổi trạng thái tài khoản?')">
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

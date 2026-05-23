@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Sửa tài khoản</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:href="@{/taikhoan}" class="active">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>✏️ Sửa tài khoản</h1>
+        <div class="topbar-right">
+            <span class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="card" style="max-width:580px" th:if="${tk != null}">
+            <div class="card-title">Cập nhật tài khoản</div>
+            <form th:action="@{/taikhoan/capnhat}" method="post" th:object="${tk}">
+                <input type="hidden" th:field="*{maTK}">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tên đăng nhập</label>
+                        <input type="text" th:field="*{tenDangNhap}" readonly
+                               style="background:#f8fafc;color:#94a3b8">
+                    </div>
+                    <div class="form-group">
+                        <label>Mật khẩu mới</label>
+                        <input type="password" th:field="*{matKhau}" placeholder="Để trống nếu không đổi">
+                    </div>
+                    <div class="form-group full">
+                        <label>Họ tên *</label>
+                        <input type="text" th:field="*{hoTen}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="text" th:field="*{sdt}">
+                    </div>
+                    <div class="form-group">
+                        <label>Vai trò</label>
+                        <select th:field="*{vaiTro}">
+                            <option value="STAFF">STAFF - Nhân viên</option>
+                            <option value="ADMIN">ADMIN - Quản trị</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Trạng thái</label>
+                        <select th:field="*{trangThai}">
+                            <option value="1">Hoạt động</option>
+                            <option value="0">Khóa</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-warning">💾 Cập nhật</button>
+                    <a th:href="@{/taikhoan}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

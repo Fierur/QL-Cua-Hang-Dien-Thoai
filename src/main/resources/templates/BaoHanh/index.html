@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Bảo hành</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}" class="active">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>🔧 Quản lý bảo hành</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="card">
+            <div class="toolbar">
+                <!-- Lọc theo trạng thái -->
+                <div class="toolbar-left">
+                    <a th:href="@{/baohanh}"
+                       th:class="${trangThaiFilter == ''} ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'">Tất cả</a>
+                    <a th:href="@{/baohanh(trangThai='DANG_XU_LY')}"
+                       th:class="${trangThaiFilter == 'DANG_XU_LY'} ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'">🔄 Đang xử lý</a>
+                    <a th:href="@{/baohanh(trangThai='SUA_XONG')}"
+                       th:class="${trangThaiFilter == 'SUA_XONG'} ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'">✅ Sửa xong</a>
+                    <a th:href="@{/baohanh(trangThai='DOI_MAY')}"
+                       th:class="${trangThaiFilter == 'DOI_MAY'} ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'">🔄 Đổi máy</a>
+                </div>
+                <a th:href="@{/baohanh/them}" class="btn btn-danger">+ Tiếp nhận bảo hành</a>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>#</th><th>Mã BH</th><th>IMEI</th><th>Khách hàng</th>
+                        <th>Ngày nhận</th><th>Tình trạng lỗi</th><th>Trạng thái</th><th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="bh, i : ${dsBH}">
+                        <td th:text="${i.count}"></td>
+                        <td><span class="badge badge-orange" th:text="'BH' + ${bh.maBH}"></span></td>
+                        <td style="font-family:monospace;font-size:12px" th:text="${bh.imeiEntity?.imei}"></td>
+                        <td th:text="${bh.khachHang?.tenKH}"></td>
+                        <td th:text="${#temporals.format(bh.ngayNhan,'dd/MM/yyyy')}"></td>
+                        <td th:text="${bh.tinhTrangLoi}"></td>
+                        <td>
+                            <span th:if="${bh.huongXuLy == 'DANG_XU_LY'}" class="badge badge-orange">Đang xử lý</span>
+                            <span th:if="${bh.huongXuLy == 'SUA_XONG'}"   class="badge badge-green">Sửa xong</span>
+                            <span th:if="${bh.huongXuLy == 'DOI_MAY'}"    class="badge badge-blue">Đổi máy</span>
+                            <span th:if="${bh.huongXuLy == 'TU_CHOI'}"    class="badge badge-red">Từ chối</span>
+                        </td>
+                        <td style="white-space:nowrap">
+                            <a th:if="${bh.huongXuLy == 'DANG_XU_LY'}"
+                               th:href="@{/baohanh/capnhat/{id}(id=${bh.maBH})}" class="btn btn-warning btn-sm">✏️ Xử lý</a>
+                            <a th:href="@{/baohanh/chitiet/{id}(id=${bh.maBH})}" class="btn btn-secondary btn-sm">👁</a>
+                            <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}"
+                               th:href="@{/baohanh/xoa/{id}(id=${bh.maBH})}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Xóa phiếu bảo hành?')">🗑️</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(dsBH)}">
+                        <td colspan="8" style="text-align:center;color:#94a3b8;padding:24px">Không có phiếu bảo hành</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

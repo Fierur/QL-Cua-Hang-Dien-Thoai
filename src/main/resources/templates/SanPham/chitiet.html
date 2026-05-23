@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Chi tiết sản phẩm</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+  <nav>
+    <a th:href="@{/}">🏠 Trang chủ</a>
+    <a th:href="@{/sanpham}" class="active">📦 Sản phẩm</a>
+    <a th:href="@{/khachhang}">👥 Khách hàng</a>
+    <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+    <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+    <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+    <a th:href="@{/baocao}">📊 Báo cáo</a>
+    <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+  </nav>
+  <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <h1>📦 Chi tiết sản phẩm</h1>
+    <div class="topbar-right">
+      <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+      <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+      <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card" style="max-width:620px" th:if="${sp != null}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h2 style="font-size:17px;color:#1e293b" th:text="${sp.tenSP}"></h2>
+        <span th:if="${sp.soLuongTon > 0}" class="badge badge-green" th:text="${sp.soLuongTon} + ' máy'"></span>
+        <span th:if="${sp.soLuongTon == 0}" class="badge badge-red">Hết hàng</span>
+      </div>
+
+      <div class="info-grid">
+        <span class="info-label">Mã sản phẩm</span>
+        <span class="info-value" th:text="'SP' + ${sp.maSP}"></span>
+
+        <span class="info-label">Hãng sản xuất</span>
+        <span class="info-value" th:text="${sp.hangSX}"></span>
+
+        <span class="info-label">Loại sản phẩm</span>
+        <span class="info-value" th:text="${sp.loaiSP}"></span>
+
+        <span class="info-label">Giá bán</span>
+        <span class="info-value" style="font-weight:700;color:#6366f1;font-size:16px"
+              th:text="${#numbers.formatDecimal(sp.giaBan,0,'COMMA',0,'POINT')} + ' ₫'"></span>
+
+        <span class="info-label">Tồn kho hiện tại</span>
+        <span class="info-value" th:text="${sp.soLuongTon} + ' máy'"></span>
+
+        <span class="info-label">Mô tả</span>
+        <span class="info-value" th:text="${sp.moTa}"></span>
+      </div>
+
+      <div class="form-actions" style="margin-top:24px">
+        <a th:href="@{/sanpham/sua/{id}(id=${sp.maSP})}" class="btn btn-warning">✏️ Sửa</a>
+        <a th:href="@{/sanpham}" class="btn btn-secondary">← Quay lại</a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

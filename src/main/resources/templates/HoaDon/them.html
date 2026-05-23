@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Tạo hóa đơn</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        #imei-select { display: none; }
+        .price-display { font-size: 20px; font-weight: 700; color: #6366f1; margin-top: 12px; }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}" class="active">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>🧾 Tạo hóa đơn bán hàng</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="card" style="max-width:700px">
+            <div class="card-title">Thông tin bán hàng</div>
+            <form action="/hoadon/luu" method="post">
+
+                <div class="form-grid">
+                    <!-- Chọn sản phẩm -->
+                    <div class="form-group">
+                        <label>Sản phẩm *</label>
+                        <select name="maSP" id="spSelect" required onchange="loadImei(this)">
+                            <option value="">-- Chọn sản phẩm --</option>
+                            <option th:each="sp : ${dsSP}"
+                                    th:value="${sp.maSP}"
+                                    th:text="${sp.tenSP} + ' (' + ${sp.soLuongTon} + ' máy) - ' + ${#numbers.formatDecimal(sp.giaBan,0,'COMMA',0,'POINT')} + '₫'"
+                                    th:attr="data-gia=${sp.giaBan}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Chọn IMEI (load động qua JS) -->
+                    <div class="form-group" id="imei-select">
+                        <label>Chọn IMEI máy *</label>
+                        <select name="imeiChon" id="imeiSelect" required>
+                            <option value="">-- Chọn IMEI --</option>
+                        </select>
+                    </div>
+
+                    <!-- Khách hàng (không bắt buộc) -->
+                    <div class="form-group">
+                        <label>Khách hàng</label>
+                        <select name="maKH">
+                            <option value="">-- Khách lẻ (không cần) --</option>
+                            <option th:each="kh : ${dsKH}"
+                                    th:value="${kh.maKH}"
+                                    th:text="${kh.tenKH} + ' - ' + ${kh.sdt}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Hình thức thanh toán -->
+                    <div class="form-group">
+                        <label>Hình thức thanh toán *</label>
+                        <select name="hinhThucTT" required>
+                            <option value="TIEN_MAT">💵 Tiền mặt</option>
+                            <option value="CHUYEN_KHOAN">🏦 Chuyển khoản</option>
+                            <option value="TRA_GOP">📋 Trả góp</option>
+                        </select>
+                    </div>
+
+                    <!-- Ghi chú -->
+                    <div class="form-group full">
+                        <label>Ghi chú</label>
+                        <input type="text" name="ghiChu" placeholder="Ghi chú thêm (nếu có)">
+                    </div>
+                </div>
+
+                <!-- Hiển thị giá -->
+                <div id="price-area" style="display:none" class="price-display">
+                    Tổng tiền: <span id="priceDisplay">0</span> ₫
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">💾 Xuất hóa đơn</button>
+                    <a th:href="@{/hoadon}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Khi chọn sản phẩm → load danh sách IMEI còn trong kho
+    function loadImei(sel) {
+        const maSP = sel.value;
+        const imeiDiv = document.getElementById('imei-select');
+        const imeiSel = document.getElementById('imeiSelect');
+        const priceArea = document.getElementById('price-area');
+        const priceDisplay = document.getElementById('priceDisplay');
+
+        imeiSel.innerHTML = '<option value="">-- Chọn IMEI --</option>';
+
+        if (!maSP) {
+            imeiDiv.style.display = 'none';
+            priceArea.style.display = 'none';
+            return;
+        }
+
+        // Hiển thị giá ngay khi chọn SP
+        const opt = sel.options[sel.selectedIndex];
+        const gia = opt.getAttribute('data-gia');
+        if (gia) {
+            priceDisplay.textContent = Number(gia).toLocaleString('vi-VN');
+            priceArea.style.display = 'block';
+        }
+
+        // Gọi API lấy danh sách IMEI
+        fetch('/hoadon/imei/' + maSP)
+            .then(r => r.json())
+            .then(data => {
+                if (data.length === 0) {
+                    imeiSel.innerHTML = '<option value="">-- Hết hàng --</option>';
+                } else {
+                    data.forEach(imei => {
+                        const o = document.createElement('option');
+                        o.value = imei;
+                        o.textContent = imei;
+                        imeiSel.appendChild(o);
+                    });
+                }
+                imeiDiv.style.display = 'block';
+            })
+            .catch(() => {
+                imeiDiv.style.display = 'block';
+            });
+    }
+</script>
+</body>
+</html>

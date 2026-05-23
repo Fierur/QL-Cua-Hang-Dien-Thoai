@@ -1,0 +1,15 @@
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}" th:class="${'/' == '${ACTIVE}' ? 'active' : ''}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}" th:classappend="${'/sanpham' == '${ACTIVE}' ? ' active' : ''}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}" th:classappend="${'/khachhang' == '${ACTIVE}' ? ' active' : ''}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}" th:classappend="${'/hoadon' == '${ACTIVE}' ? ' active' : ''}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}" th:classappend="${'/phieunhap' == '${ACTIVE}' ? ' active' : ''}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}" th:classappend="${'/baohanh' == '${ACTIVE}' ? ' active' : ''}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}" th:classappend="${'/baocao' == '${ACTIVE}' ? ' active' : ''}">📊 Báo cáo</a>
+        <a th:if="\${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}"
+           th:href="@{/taikhoan}" th:classappend="${'/taikhoan' == '${ACTIVE}' ? ' active' : ''}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Quản lý cửa hàng Điện thoại</div>
+</div>

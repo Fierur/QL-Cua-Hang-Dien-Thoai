@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Sửa khách hàng</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}" class="active">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>✏️ Sửa khách hàng</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="card" style="max-width:600px">
+            <div class="card-title">Cập nhật thông tin khách hàng</div>
+            <form th:action="@{/khachhang/capnhat}" method="post" th:object="${kh}">
+                <input type="hidden" th:field="*{maKH}">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label>Họ tên khách hàng *</label>
+                        <input type="text" th:field="*{tenKH}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại *</label>
+                        <input type="text" th:field="*{sdt}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Điểm tích lũy</label>
+                        <input type="number" th:field="*{diemTichLuy}" min="0">
+                    </div>
+                    <div class="form-group full">
+                        <label>Địa chỉ</label>
+                        <input type="text" th:field="*{diaChi}">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-warning">💾 Cập nhật</button>
+                    <a th:href="@{/khachhang}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

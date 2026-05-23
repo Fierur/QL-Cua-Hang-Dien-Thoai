@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Sản phẩm</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}" class="active">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+
+<div class="main">
+    <div class="topbar">
+        <h1>📦 Quản lý sản phẩm</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="card">
+            <div class="toolbar">
+                <form method="get" th:action="@{/sanpham}" class="toolbar-left">
+                    <input class="search-input" type="text" name="keyword"
+                           th:value="${keyword}" placeholder="Tìm theo tên sản phẩm...">
+                    <button type="submit" class="btn btn-secondary">🔍 Tìm</button>
+                    <a th:href="@{/sanpham}" class="btn btn-secondary">Tất cả</a>
+                </form>
+                <a th:href="@{/sanpham/them}" class="btn btn-primary">+ Thêm sản phẩm</a>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Hãng SX</th>
+                        <th>Loại</th>
+                        <th>Giá bán</th>
+                        <th>Tồn kho</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="sp, i : ${dsSP}">
+                        <td th:text="${i.count}"></td>
+                        <td>
+                            <a th:href="@{/sanpham/chitiet/{id}(id=${sp.maSP})}"
+                               style="color:#6366f1;font-weight:500" th:text="${sp.tenSP}"></a>
+                        </td>
+                        <td th:text="${sp.hangSX}"></td>
+                        <td th:text="${sp.loaiSP}"></td>
+                        <td>
+                            <strong th:text="${#numbers.formatDecimal(sp.giaBan,0,'COMMA',0,'POINT')} + ' ₫'"></strong>
+                        </td>
+                        <td>
+                            <span th:if="${sp.soLuongTon > 0}" class="badge badge-green" th:text="${sp.soLuongTon} + ' máy'"></span>
+                            <span th:if="${sp.soLuongTon == 0}" class="badge badge-red">Hết hàng</span>
+                        </td>
+                        <td style="white-space:nowrap">
+                            <a th:href="@{/sanpham/sua/{id}(id=${sp.maSP})}" class="btn btn-warning btn-sm">✏️ Sửa</a>
+                            <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}"
+                               th:href="@{/sanpham/xoa/{id}(id=${sp.maSP})}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Xác nhận xóa sản phẩm này?')">🗑️ Xóa</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(dsSP)}">
+                        <td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">Không tìm thấy sản phẩm nào</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

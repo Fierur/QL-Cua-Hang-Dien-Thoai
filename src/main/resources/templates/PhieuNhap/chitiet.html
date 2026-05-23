@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Chi tiết phiếu nhập</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}" class="active">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>📥 Chi tiết phiếu nhập</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content" th:if="${pn != null}">
+        <div class="card" style="max-width:640px">
+            <h2 style="font-size:16px;margin-bottom:20px"
+                th:text="'Phiếu nhập #PN' + ${pn.maPN}"></h2>
+            <div class="info-grid" style="margin-bottom:20px">
+                <span class="info-label">Ngày nhập</span>
+                <span class="info-value" th:text="${#temporals.format(pn.ngayNhap,'dd/MM/yyyy')}"></span>
+                <span class="info-label">Nhà cung cấp</span>
+                <span class="info-value" th:text="${pn.nhaCungCap?.tenNCC}"></span>
+                <span class="info-label">Nhân viên lập</span>
+                <span class="info-value" th:text="${pn.taiKhoan?.hoTen}"></span>
+                <span class="info-label">Ghi chú</span>
+                <span class="info-value" th:text="${pn.ghiChu}"></span>
+            </div>
+
+            <div class="card-title">Chi tiết sản phẩm nhập</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr><th>Sản phẩm</th><th>Số lượng</th><th>Giá nhập</th><th>Thành tiền</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ct : ${pn.chiTiet}">
+                        <td th:text="${ct.sanPham?.tenSP}"></td>
+                        <td th:text="${ct.soLuong}"></td>
+                        <td th:text="${#numbers.formatDecimal(ct.giaNhap,0,'COMMA',0,'POINT')} + ' ₫'"></td>
+                        <td style="font-weight:600"
+                            th:text="${#numbers.formatDecimal(ct.soLuong * ct.giaNhap,0,'COMMA',0,'POINT')} + ' ₫'"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(pn.chiTiet)}">
+                        <td colspan="4" style="text-align:center;color:#94a3b8">Không có chi tiết</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-actions" style="margin-top:20px">
+                <a th:href="@{/phieunhap}" class="btn btn-secondary">← Quay lại</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

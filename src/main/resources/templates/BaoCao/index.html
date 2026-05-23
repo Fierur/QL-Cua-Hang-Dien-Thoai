@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Báo cáo</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}" class="active">📊 Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>📊 Báo cáo thống kê</h1>
+        <div class="topbar-right">
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+
+        <!-- Bộ lọc thời gian -->
+        <div class="card">
+            <form method="get" th:action="@{/baocao}" style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+                <div class="form-group">
+                    <label>Từ ngày</label>
+                    <input type="date" name="from"
+                           th:value="${#temporals.format(from,'yyyy-MM-dd')}">
+                </div>
+                <div class="form-group">
+                    <label>Đến ngày</label>
+                    <input type="date" name="to"
+                           th:value="${#temporals.format(to,'yyyy-MM-dd')}">
+                </div>
+                <button type="submit" class="btn btn-primary">📊 Xem báo cáo</button>
+                <a th:href="@{/baocao}" class="btn btn-secondary">Tháng này</a>
+            </form>
+        </div>
+
+        <!-- Thống kê tổng quan -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="label">💰 Doanh thu kỳ này</div>
+                <div class="value" style="font-size:18px;color:#6366f1"
+                     th:text="${#numbers.formatDecimal(doanhThu,0,'COMMA',0,'POINT')} + ' ₫'"></div>
+            </div>
+            <div class="stat-card green">
+                <div class="label">🧾 Số đơn hàng</div>
+                <div class="value" th:text="${soDon} + ' đơn'"></div>
+            </div>
+            <div class="stat-card orange">
+                <div class="label">📦 Tổng tồn kho</div>
+                <div class="value" th:text="${tongTonKho} + ' máy'"></div>
+            </div>
+            <div class="stat-card red">
+                <div class="label">🔧 Đang bảo hành</div>
+                <div class="value" th:text="${soMayBH} + ' máy'"></div>
+            </div>
+        </div>
+
+        <!-- Bảng chi tiết hóa đơn trong kỳ -->
+        <div class="card">
+            <div class="card-title">
+                Chi tiết hóa đơn từ
+                <span th:text="${#temporals.format(from,'dd/MM/yyyy')}"></span>
+                đến
+                <span th:text="${#temporals.format(to,'dd/MM/yyyy')}"></span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>#</th><th>Mã HĐ</th><th>Ngày</th><th>Khách hàng</th>
+                        <th>Nhân viên</th><th>Hình thức TT</th><th>Tổng tiền</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="hd, i : ${dsHD}">
+                        <td th:text="${i.count}"></td>
+                        <td>
+                            <a th:href="@{/hoadon/chitiet/{id}(id=${hd.maHD})}"
+                               class="badge badge-blue" th:text="'HD' + ${hd.maHD}"></a>
+                        </td>
+                        <td th:text="${#temporals.format(hd.ngayLap,'dd/MM/yyyy')}"></td>
+                        <td th:text="${hd.khachHang != null ? hd.khachHang.tenKH : 'Khách lẻ'}"></td>
+                        <td th:text="${hd.taiKhoan?.hoTen}"></td>
+                        <td>
+                            <span th:if="${hd.hinhThucTT == 'TIEN_MAT'}"    class="badge badge-green">Tiền mặt</span>
+                            <span th:if="${hd.hinhThucTT == 'CHUYEN_KHOAN'}" class="badge badge-blue">Chuyển khoản</span>
+                            <span th:if="${hd.hinhThucTT == 'TRA_GOP'}"    class="badge badge-orange">Trả góp</span>
+                        </td>
+                        <td style="font-weight:600;color:#6366f1"
+                            th:text="${#numbers.formatDecimal(hd.tongTien,0,'COMMA',0,'POINT')} + ' ₫'"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(dsHD)}">
+                        <td colspan="7" style="text-align:center;color:#94a3b8;padding:24px">
+                            Không có hóa đơn trong kỳ này
+                        </td>
+                    </tr>
+                    <!-- Tổng cộng -->
+                    <tr th:if="${!#lists.isEmpty(dsHD)}"
+                        style="background:#f8fafc;font-weight:700">
+                        <td colspan="6" style="text-align:right;padding:10px 14px">Tổng cộng:</td>
+                        <td style="color:#6366f1;font-size:15px"
+                            th:text="${#numbers.formatDecimal(doanhThu,0,'COMMA',0,'POINT')} + ' ₫'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

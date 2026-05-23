@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Thêm tài khoản</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<div class="sidebar">
+    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <nav>
+        <a th:href="@{/}">🏠 Trang chủ</a>
+        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
+        <a th:href="@{/khachhang}">👥 Khách hàng</a>
+        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
+        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
+        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
+        <a th:href="@{/baocao}">📊 Báo cáo</a>
+        <a th:href="@{/taikhoan}" class="active">🔑 Tài khoản</a>
+    </nav>
+    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
+</div>
+<div class="main">
+    <div class="topbar">
+        <h1>+ Thêm tài khoản</h1>
+        <div class="topbar-right">
+            <span class="admin-badge">ADMIN</span>
+            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="card" style="max-width:580px">
+            <div class="card-title">Thông tin tài khoản</div>
+
+            <div th:if="${loi}" class="alert alert-danger" th:text="${loi}"></div>
+
+            <form th:action="@{/taikhoan/luu}" method="post" th:object="${tk}">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tên đăng nhập *</label>
+                        <input type="text" th:field="*{tenDangNhap}"
+                               placeholder="VD: staff3" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mật khẩu *</label>
+                        <input type="password" th:field="*{matKhau}"
+                               placeholder="Mật khẩu đăng nhập" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Họ tên *</label>
+                        <input type="text" th:field="*{hoTen}"
+                               placeholder="Họ và tên đầy đủ" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="text" th:field="*{sdt}" placeholder="09xxxxxxxx">
+                    </div>
+                    <div class="form-group">
+                        <label>Vai trò *</label>
+                        <select th:field="*{vaiTro}" required>
+                            <option value="STAFF">STAFF - Nhân viên</option>
+                            <option value="ADMIN">ADMIN - Quản trị</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">💾 Tạo tài khoản</button>
+                    <a th:href="@{/taikhoan}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
