@@ -38,6 +38,7 @@ public class BaoHanhController {
     public String them(Model model) {
         model.addAttribute("bh", new BaoHanh());
         model.addAttribute("dsKH", khachHangRepository.findAll());
+        model.addAttribute("dsIMEI", imeiRepository.findAll());
         return "baohanh/them";
     }
 
