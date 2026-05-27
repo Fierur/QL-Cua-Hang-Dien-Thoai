@@ -160,7 +160,13 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Số IMEI máy *</label>
-                        <input type="text" name="imeiStr" placeholder="Nhập IMEI máy cần bảo hành" required>
+                        <select name="imeiStr" required>
+                            <option value="">-- Chọn IMEI máy --</option>
+                            <option th:each="item : ${dsIMEI}"
+                                    th:value="${item.imei}"
+                                    th:text="${item.imei} + ' - ' + ${item.sanPham != null ? item.sanPham.tenSP : 'Chưa có tên SP'} + ' (' + ${item.trangThai} + ')'">
+                            </option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Khách hàng *</label>
