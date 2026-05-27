@@ -1,129 +1,209 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head><meta charset="UTF-8"><title>Tạo hóa đơn</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        #imei-select { display: none; }
-        .price-display { font-size: 20px; font-weight: 700; color: #6366f1; margin-top: 12px; }
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        indigo: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-slate-50 text-slate-700 antialiased; }
+            a { @apply no-underline text-inherit; }
+            label { @apply text-sm font-medium text-slate-700; }
+            input, select, textarea { @apply w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/15 transition-all; }
+        }
+        @layer components {
+            .sidebar { @apply fixed top-0 left-0 w-64 h-screen bg-slate-900 text-slate-300 flex flex-col overflow-y-auto z-[100]; }
+            .sidebar-header { @apply bg-slate-950 p-6 text-base font-semibold text-white border-b border-slate-800 flex items-center gap-2; }
+            .sidebar-header small { @apply block text-xs text-slate-400 font-normal mt-1; }
+            .sidebar nav { @apply flex-1 p-4 flex flex-col gap-1; }
+            .sidebar nav a { @apply flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-300 rounded-lg hover:bg-slate-800 hover:text-white transition-colors; }
+            .sidebar nav a.active { @apply bg-indigo-600 text-white shadow-sm; }
+            .sidebar nav a .lucide { @apply w-[18px] h-[18px] stroke-[2px] shrink-0; }
+            
+            .main { @apply ml-64 min-h-screen flex flex-col bg-slate-50; }
+            .topbar { @apply bg-white px-8 py-4 flex justify-between items-center border-b border-slate-200 sticky top-0 z-50 shadow-sm; }
+            .topbar h1 { @apply text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2; }
+            .topbar-right { @apply flex items-center gap-4 text-sm text-slate-600; }
+            
+            .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-transparent transition-all; }
+            .btn-primary { @apply bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm; }
+            .btn-success { @apply bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm; }
+            .btn-danger { @apply bg-red-50 text-red-600 hover:bg-red-100; }
+            .btn-secondary { @apply bg-white text-slate-700 border-slate-300 hover:bg-slate-50; }
+            
+            .card { @apply bg-white rounded-xl shadow-sm border border-slate-200 p-6; }
+        }
     </style>
 </head>
 <body>
 <div class="sidebar">
-    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <div class="sidebar-header">
+        <div><i data-lucide="smartphone"></i> Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    </div>
     <nav>
-        <a th:href="@{/}">🏠 Trang chủ</a>
-        <a th:href="@{/sanpham}">📦 Sản phẩm</a>
-        <a th:href="@{/khachhang}">👥 Khách hàng</a>
-        <a th:href="@{/hoadon}" class="active">🧾 Bán hàng</a>
-        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
-        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
-        <a th:href="@{/baocao}">📊 Báo cáo</a>
-        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+        <a th:href="@{/}"><i data-lucide="home"></i> Trang chủ</a>
+        <a th:href="@{/sanpham}"><i data-lucide="package"></i> Sản phẩm</a>
+        <a th:href="@{/khachhang}"><i data-lucide="users"></i> Khách hàng</a>
+        <a th:href="@{/hoadon}" class="active"><i data-lucide="receipt"></i> Bán hàng</a>
+        <a th:href="@{/donhang}"><i data-lucide="shopping-bag"></i> Đơn online</a>
+        <a th:href="@{/phieunhap}"><i data-lucide="download"></i> Nhập hàng</a>
+        <a th:href="@{/baohanh}"><i data-lucide="wrench"></i> Bảo hành</a>
+        <a th:href="@{/baocao}"><i data-lucide="bar-chart-2"></i> Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}"><i data-lucide="key"></i> Tài khoản</a>
     </nav>
-    <div class="sidebar-footer">v1.0 - Nhóm 09</div>
 </div>
+
 <div class="main">
     <div class="topbar">
-        <h1>🧾 Tạo hóa đơn bán hàng</h1>
+        <h1><i data-lucide="receipt"></i> Bán hàng (POS)</h1>
         <div class="topbar-right">
-            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="admin-badge">ADMIN</span>
-            <span class="user-badge" th:text="${session.taiKhoan?.hoTen}"></span>
-            <a th:href="@{/logout}" class="btn btn-secondary btn-sm">Đăng xuất</a>
+            <span th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" class="bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full text-xs font-bold uppercase">ADMIN</span>
+            <span class="bg-slate-100 px-3.5 py-1.5 rounded-full font-medium" th:text="${session.taiKhoan?.hoTen}"></span>
+            <a th:href="@{/logout}" class="btn btn-secondary !py-1.5 !px-3">Đăng xuất</a>
         </div>
     </div>
-    <div class="content">
-        <div class="card" style="max-width:700px">
-            <div class="card-title">Thông tin bán hàng</div>
-            <form action="/hoadon/luu" method="post">
-
-                <div class="form-grid">
-                    <!-- Chọn sản phẩm -->
-                    <div class="form-group">
-                        <label>Sản phẩm *</label>
-                        <select name="maSP" id="spSelect" required onchange="loadImei(this)">
+    <div class="p-8 flex gap-6">
+        
+        <!-- Cột trái: Chọn sản phẩm (Scanner/Dropdown) -->
+        <div class="w-1/2 flex flex-col gap-6">
+            <div class="card">
+                <h2 class="text-lg font-semibold text-slate-900 mb-4">Thêm sản phẩm vào đơn</h2>
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="mb-1 block">Chọn sản phẩm</label>
+                        <select id="spSelect" onchange="loadImei(this)">
                             <option value="">-- Chọn sản phẩm --</option>
                             <option th:each="sp : ${dsSP}"
                                     th:value="${sp.maSP}"
                                     th:text="${sp.tenSP} + ' (' + ${sp.soLuongTon} + ' máy) - ' + ${#numbers.formatDecimal(sp.giaBan,0,'COMMA',0,'POINT')} + '₫'"
-                                    th:attr="data-gia=${sp.giaBan}">
+                                    th:attr="data-ten=${sp.tenSP}, data-gia=${sp.giaBan}">
                             </option>
                         </select>
                     </div>
-
-                    <!-- Chọn IMEI (load động qua JS) -->
-                    <div class="form-group" id="imei-select">
-                        <label>Chọn IMEI máy *</label>
-                        <select name="imeiChon" id="imeiSelect" required>
-                            <option value="">-- Chọn IMEI --</option>
-                        </select>
-                    </div>
-
-                    <!-- Khách hàng (không bắt buộc) -->
-                    <div class="form-group">
-                        <label>Khách hàng</label>
-                        <select name="maKH">
-                            <option value="">-- Khách lẻ (không cần) --</option>
-                            <option th:each="kh : ${dsKH}"
-                                    th:value="${kh.maKH}"
-                                    th:text="${kh.tenKH} + ' - ' + ${kh.sdt}">
-                            </option>
-                        </select>
-                    </div>
-
-                    <!-- Hình thức thanh toán -->
-                    <div class="form-group">
-                        <label>Hình thức thanh toán *</label>
-                        <select name="hinhThucTT" required>
-                            <option value="TIEN_MAT">💵 Tiền mặt</option>
-                            <option value="CHUYEN_KHOAN">🏦 Chuyển khoản</option>
-                            <option value="TRA_GOP">📋 Trả góp</option>
-                        </select>
-                    </div>
-
-                    <!-- Ghi chú -->
-                    <div class="form-group full">
-                        <label>Ghi chú</label>
-                        <input type="text" name="ghiChu" placeholder="Ghi chú thêm (nếu có)">
+                    
+                    <div id="imei-section" style="display: none;">
+                        <label class="mb-1 block">Chọn IMEI máy *</label>
+                        <div class="flex gap-2">
+                            <select id="imeiSelect" class="flex-1">
+                                <option value="">-- Chọn IMEI --</option>
+                            </select>
+                            <button type="button" onclick="addItem()" class="btn btn-primary whitespace-nowrap">
+                                <i data-lucide="plus"></i> Thêm
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Hiển thị giá -->
-                <div id="price-area" style="display:none" class="price-display">
-                    Tổng tiền: <span id="priceDisplay">0</span> ₫
+            </div>
+            
+            <div class="card flex-1">
+                <h2 class="text-lg font-semibold text-slate-900 mb-4">Danh sách sản phẩm trong đơn</h2>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead>
+                            <tr>
+                                <th class="bg-slate-50 px-4 py-3 font-semibold text-slate-600 border-b">Tên Sản phẩm</th>
+                                <th class="bg-slate-50 px-4 py-3 font-semibold text-slate-600 border-b">IMEI</th>
+                                <th class="bg-slate-50 px-4 py-3 font-semibold text-slate-600 border-b">Đơn giá</th>
+                                <th class="bg-slate-50 px-4 py-3 font-semibold text-slate-600 border-b w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartTable">
+                            <tr id="emptyCartRow">
+                                <td colspan="4" class="px-4 py-8 text-center text-slate-400">Chưa có sản phẩm nào</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-success">💾 Xuất hóa đơn</button>
-                    <a th:href="@{/hoadon}" class="btn btn-secondary">Hủy</a>
-                </div>
-            </form>
+            </div>
         </div>
+
+        <!-- Cột phải: Thông tin thanh toán -->
+        <div class="w-1/2">
+            <div class="card sticky top-24">
+                <h2 class="text-lg font-semibold text-slate-900 mb-4">Thông tin thanh toán</h2>
+                
+                <form action="/hoadon/luu" method="post" id="checkoutForm" onsubmit="return validateForm()">
+                    <!-- Container chứa các input hidden cho IMEI -->
+                    <div id="hiddenImeis"></div>
+                    
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <label class="mb-1 block">Khách hàng (Tùy chọn)</label>
+                            <select name="maKH">
+                                <option value="">-- Khách lẻ --</option>
+                                <option th:each="kh : ${dsKH}"
+                                        th:value="${kh.maKH}"
+                                        th:text="${kh.tenKH} + ' - ' + ${kh.sdt}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block">Hình thức thanh toán *</label>
+                            <select name="hinhThucTT" required>
+                                <option value="TIEN_MAT">💵 Tiền mặt</option>
+                                <option value="CHUYEN_KHOAN">🏦 Chuyển khoản</option>
+                                <option value="TRA_GOP">📋 Trả góp</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="mb-1 block">Ghi chú</label>
+                            <textarea name="ghiChu" rows="2" placeholder="Ghi chú thêm..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-slate-200">
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="text-slate-500 font-medium">Tổng thanh toán:</span>
+                            <span class="text-3xl font-bold text-indigo-600"><span id="totalPrice">0</span> ₫</span>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button type="submit" class="btn btn-success flex-1 !py-3 !text-base">
+                                <i data-lucide="check-circle"></i> Xác nhận Hóa đơn
+                            </button>
+                            <a th:href="@{/hoadon}" class="btn btn-secondary !py-3">Hủy</a>
+                            <a th:href="@{/donhang}"><i data-lucide="shopping-bag"></i> Đơn online</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <script>
-    // Khi chọn sản phẩm → load danh sách IMEI còn trong kho
+    lucide.createIcons();
+    
+    let cart = []; // Array of {imei, tenSP, gia}
+
     function loadImei(sel) {
         const maSP = sel.value;
-        const imeiDiv = document.getElementById('imei-select');
+        const imeiSection = document.getElementById('imei-section');
         const imeiSel = document.getElementById('imeiSelect');
-        const priceArea = document.getElementById('price-area');
-        const priceDisplay = document.getElementById('priceDisplay');
 
         imeiSel.innerHTML = '<option value="">-- Chọn IMEI --</option>';
 
         if (!maSP) {
-            imeiDiv.style.display = 'none';
-            priceArea.style.display = 'none';
+            imeiSection.style.display = 'none';
             return;
-        }
-
-        // Hiển thị giá ngay khi chọn SP
-        const opt = sel.options[sel.selectedIndex];
-        const gia = opt.getAttribute('data-gia');
-        if (gia) {
-            priceDisplay.textContent = Number(gia).toLocaleString('vi-VN');
-            priceArea.style.display = 'block';
         }
 
         // Gọi API lấy danh sách IMEI
@@ -134,17 +214,105 @@
                     imeiSel.innerHTML = '<option value="">-- Hết hàng --</option>';
                 } else {
                     data.forEach(imei => {
-                        const o = document.createElement('option');
-                        o.value = imei;
-                        o.textContent = imei;
-                        imeiSel.appendChild(o);
+                        // Bỏ qua nếu imei đã có trong cart
+                        if (!cart.some(item => item.imei === imei)) {
+                            const o = document.createElement('option');
+                            o.value = imei;
+                            o.textContent = imei;
+                            imeiSel.appendChild(o);
+                        }
                     });
                 }
-                imeiDiv.style.display = 'block';
-            })
-            .catch(() => {
-                imeiDiv.style.display = 'block';
+                imeiSection.style.display = 'block';
             });
+    }
+
+    function addItem() {
+        const spSel = document.getElementById('spSelect');
+        const imeiSel = document.getElementById('imeiSelect');
+        
+        const imei = imeiSel.value;
+        if (!imei) {
+            alert('Vui lòng chọn IMEI!');
+            return;
+        }
+
+        const opt = spSel.options[spSel.selectedIndex];
+        const tenSP = opt.getAttribute('data-ten');
+        const gia = parseFloat(opt.getAttribute('data-gia'));
+
+        cart.push({ imei, tenSP, gia });
+        
+        // Remove selected imei from dropdown
+        imeiSel.options[imeiSel.selectedIndex].remove();
+        imeiSel.value = "";
+
+        updateCartUI();
+    }
+
+    function removeItem(imei) {
+        cart = cart.filter(item => item.imei !== imei);
+        
+        // Cập nhật lại dropdown IMEI nếu SP vẫn đang được chọn
+        const spSel = document.getElementById('spSelect');
+        if (spSel.value) {
+            loadImei(spSel); // Tải lại danh sách imei
+        }
+        
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        const tbody = document.getElementById('cartTable');
+        const emptyRow = document.getElementById('emptyCartRow');
+        const hiddenImeis = document.getElementById('hiddenImeis');
+        let total = 0;
+
+        // Xóa các row hiện tại trừ emptyRow
+        Array.from(tbody.children).forEach(row => {
+            if (row.id !== 'emptyCartRow') row.remove();
+        });
+        hiddenImeis.innerHTML = '';
+
+        if (cart.length === 0) {
+            emptyRow.style.display = 'table-row';
+        } else {
+            emptyRow.style.display = 'none';
+            cart.forEach(item => {
+                total += item.gia;
+                
+                // Row UI
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-4 py-3 border-b border-slate-100 font-medium">${item.tenSP}</td>
+                    <td class="px-4 py-3 border-b border-slate-100 text-slate-500">${item.imei}</td>
+                    <td class="px-4 py-3 border-b border-slate-100 text-indigo-600 font-semibold">${item.gia.toLocaleString('vi-VN')} ₫</td>
+                    <td class="px-4 py-3 border-b border-slate-100 text-right">
+                        <button type="button" onclick="removeItem('${item.imei}')" class="btn btn-danger !p-1.5 rounded-md" title="Xóa">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                // Hidden Input cho Form submit
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'imeis';
+                input.value = item.imei;
+                hiddenImeis.appendChild(input);
+            });
+        }
+
+        document.getElementById('totalPrice').textContent = total.toLocaleString('vi-VN');
+    }
+
+    function validateForm() {
+        if (cart.length === 0) {
+            alert('Vui lòng thêm ít nhất 1 sản phẩm vào hóa đơn!');
+            return false;
+        }
+        return true;
     }
 </script>
 </body>

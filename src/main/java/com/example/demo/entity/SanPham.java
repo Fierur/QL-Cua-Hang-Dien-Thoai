@@ -1,6 +1,8 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 // Bảng SanPham: danh mục sản phẩm (model điện thoại)
 // soLuongTon được cập nhật tự động khi nhập/bán hàng
@@ -28,6 +30,17 @@ public class SanPham {
     @Column(name = "moTa", columnDefinition = "TEXT")
     private String moTa;
 
+    @Column(name = "ram")
+    private String ram;
+
+    @Column(name = "rom")
+    private String rom;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "SanPham_HinhAnh", joinColumns = @JoinColumn(name = "maSP"))
+    @Column(name = "url")
+    private List<String> hinhAnhs = new ArrayList<>();
+
     // Tổng số máy đang trong kho (trangThai = TRONG_KHO)
     @Column(name = "soLuongTon")
     private int soLuongTon = 0;
@@ -52,6 +65,15 @@ public class SanPham {
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
 
+    public String getRam() { return ram; }
+    public void setRam(String ram) { this.ram = ram; }
+
+    public String getRom() { return rom; }
+    public void setRom(String rom) { this.rom = rom; }
+
     public int getSoLuongTon() { return soLuongTon; }
     public void setSoLuongTon(int soLuongTon) { this.soLuongTon = soLuongTon; }
+
+    public List<String> getHinhAnhs() { return hinhAnhs; }
+    public void setHinhAnhs(List<String> hinhAnhs) { this.hinhAnhs = hinhAnhs; }
 }

@@ -8,6 +8,7 @@ import java.util.List;
 public interface IMEIRepository extends JpaRepository<IMEI, String> {
     // Lấy danh sách IMEI của 1 sản phẩm còn trong kho
     List<IMEI> findBySanPham_MaSPAndTrangThai(int maSP, String trangThai);
+    List<IMEI> findBySanPhamAndTrangThai(com.example.demo.entity.SanPham sanPham, String trangThai);
     // Đếm số máy theo trạng thái của 1 sản phẩm
     int countBySanPham_MaSPAndTrangThai(int maSP, String trangThai);
 }

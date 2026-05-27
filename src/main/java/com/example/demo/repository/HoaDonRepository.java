@@ -18,4 +18,7 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
 
     // Đếm số hóa đơn theo khoảng ngày
     long countByNgayLapBetween(LocalDate from, LocalDate to);
+
+    // Lấy hóa đơn theo ghi chú (để liên kết với đơn đặt hàng online)
+    List<HoaDon> findByGhiChu(String ghiChu);
 }

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: page('Quản lý đơn hàng Online', ~{::div})}">
+<head><title>Quản lý Đơn hàng</title></head>
+<body>
+    <div>
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <i data-lucide="package" class="w-6 h-6 text-indigo-600"></i>
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Đơn hàng trực tuyến</h2>
+            </div>
+            
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                </div>
+                <input type="text" class="search-input" placeholder="Tìm kiếm đơn hàng...">
+            </div>
+        </div>
+
+        <div class="card p-0">
+            <div class="table-wrap mb-0 border-0 shadow-none">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Mã ĐH</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th class="text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="dh : ${dsDH}">
+                            <td class="font-medium text-slate-900" th:text="'#' + ${dh.maDH}"></td>
+                            <td>
+                                <div class="font-medium text-slate-900" th:text="${dh.khachHang.tenKH}"></div>
+                                <div class="text-xs text-slate-500 mt-0.5" th:text="${dh.khachHang.sdt}"></div>
+                            </td>
+                            <td th:text="${#temporals.format(dh.ngayDat, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td class="font-semibold text-indigo-600" th:text="${#numbers.formatDecimal(dh.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                            <td>
+                                <span th:if="${dh.trangThai == 'CHO_DUYET'}" class="badge badge-orange">Chờ duyệt</span>
+                                <span th:if="${dh.trangThai == 'DA_DUYET'}" class="badge badge-blue">Đã duyệt</span>
+                                <span th:if="${dh.trangThai == 'DA_GIAO'}" class="badge badge-green">Hoàn thành</span>
+                                <span th:if="${dh.trangThai == 'DA_HUY'}" class="badge badge-red">Đã hủy</span>
+                            </td>
+                            <td class="text-right">
+                                <a th:if="${dh.trangThai == 'CHO_DUYET'}" th:href="@{'/donhang/duyet/' + ${dh.maDH}}" class="btn btn-sm btn-primary">
+                                    <i data-lucide="check-circle"></i> Duyệt đơn
+                                </a>
+                                
+                                <form th:if="${dh.trangThai == 'CHO_DUYET'}" action="/donhang/huy" method="post" class="inline-block ml-1" onsubmit="return confirm('Bạn có chắc muốn hủy đơn này?');">
+                                    <input type="hidden" name="maDH" th:value="${dh.maDH}">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i data-lucide="x-circle"></i> Hủy
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${dsDH == null || dsDH.empty}">
+                            <td colspan="6" class="text-center py-8 text-slate-500">Không có đơn hàng nào.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

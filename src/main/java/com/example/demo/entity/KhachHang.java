@@ -24,6 +24,16 @@ public class KhachHang {
     @Column(name = "diemTichLuy")
     private int diemTichLuy = 0;
 
+    // Authentication fields for Customer Storefront
+    @Column(name = "matKhau")
+    private String matKhau;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "avatar")
+    private String avatar;
+
     public KhachHang() {}
 
     public int getMaKH() { return maKH; }
@@ -40,4 +50,13 @@ public class KhachHang {
 
     public int getDiemTichLuy() { return diemTichLuy; }
     public void setDiemTichLuy(int diemTichLuy) { this.diemTichLuy = diemTichLuy; }
+
+    public String getMatKhau() { return matKhau; }
+    public void setMatKhau(String matKhau) { this.matKhau = matKhau; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getAvatar() { return avatar; }
+    public void setAvatar(String avatar) { this.avatar = avatar; }
 }

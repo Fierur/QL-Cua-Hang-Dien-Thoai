@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Antigravity ###
+.agents
+PRODUCT.md
+skills-lock.json

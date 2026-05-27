@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: page('Duyệt đơn hàng', ~{::div})}">
+<head><title>Duyệt đơn hàng</title></head>
+<body>
+    <div>
+        <div class="mb-6">
+            <a href="/donhang" class="text-sm font-medium text-slate-500 hover:text-indigo-600 inline-flex items-center gap-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Trở về danh sách
+            </a>
+        </div>
+        
+        <div th:if="${loi}" class="alert alert-danger">
+            <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
+            <span th:text="${loi}"></span>
+        </div>
+
+        <div class="card max-w-4xl">
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+                <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
+                    <i data-lucide="check-square" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 tracking-tight" th:text="'Duyệt Đơn Hàng #' + ${dh.maDH}"></h2>
+                    <p class="text-sm text-slate-500">Gán mã IMEI để tiến hành xuất kho</p>
+                </div>
+            </div>
+
+            <div class="info-grid mb-8 bg-slate-50 p-4 rounded-lg">
+                <div class="info-label">Khách hàng:</div>
+                <div class="info-value" th:text="${dh.khachHang.tenKH}"></div>
+                
+                <div class="info-label">Giao đến:</div>
+                <div class="info-value">
+                    <span th:text="${dh.diaChiGiao}"></span><br>
+                    <span class="text-slate-500 text-sm">SĐT: <span th:text="${dh.sdtGiao}"></span></span>
+                </div>
+                
+                <div class="info-label">Ghi chú:</div>
+                <div class="info-value text-amber-600 italic" th:text="${dh.ghiChu ?: 'Không có'}"></div>
+            </div>
+
+            <form action="/donhang/duyet" method="post">
+                <input type="hidden" name="maDH" th:value="${dh.maDH}">
+                
+                <h3 class="text-base font-semibold text-slate-900 mb-4">Chi tiết sản phẩm & Gán IMEI</h3>
+                
+                <div class="space-y-6 mb-8">
+                    <div th:each="ct : ${dh.chiTiet}" class="border border-slate-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
+                            <div class="font-semibold text-slate-900" th:text="${ct.sanPham.tenSP}"></div>
+                            <div class="text-sm">
+                                Số lượng đặt: <span class="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded" th:text="${ct.soLuong}"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div th:each="i : ${#numbers.sequence(1, ct.soLuong)}" class="flex items-center gap-4">
+                                <label class="text-sm font-medium text-slate-700 min-w-[80px]" th:text="'Máy ' + ${i} + ':'"></label>
+                                <select name="selectedImeis" class="flex-1" required>
+                                    <option value="">-- Chọn IMEI xuất kho --</option>
+                                    <!-- Use dynamic model attribute name: imeis_1, imeis_2 -->
+                                    <option th:each="imei : ${__${'imeis_' + ct.sanPham.maSP}__}" 
+                                            th:value="${imei.imei}" 
+                                            th:text="${imei.imei}"></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions justify-end">
+                    <a href="/donhang" class="btn btn-secondary">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i data-lucide="save"></i> Hoàn tất xuất kho (Tạo Hóa Đơn)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

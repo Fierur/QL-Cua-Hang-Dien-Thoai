@@ -19,7 +19,7 @@ public class TaiKhoanController {
     @GetMapping
     public String danhSach(Model model, HttpSession session) {
         TaiKhoan tk = (TaiKhoan) session.getAttribute("taiKhoan");
-        if (tk == null || !tk.isAdmin()) return "redirect:/";
+        if (tk == null || !tk.isAdmin()) return "redirect:/admin";
 
         model.addAttribute("dsTK", taiKhoanRepository.findAll());
         return "taikhoan/index";
@@ -29,7 +29,7 @@ public class TaiKhoanController {
     @GetMapping("/them")
     public String them(Model model, HttpSession session) {
         TaiKhoan tk = (TaiKhoan) session.getAttribute("taiKhoan");
-        if (tk == null || !tk.isAdmin()) return "redirect:/";
+        if (tk == null || !tk.isAdmin()) return "redirect:/admin";
 
         model.addAttribute("tk", new TaiKhoan());
         return "taikhoan/them";
@@ -42,7 +42,7 @@ public class TaiKhoanController {
                       Model model) {
 
         TaiKhoan loginTK = (TaiKhoan) session.getAttribute("taiKhoan");
-        if (loginTK == null || !loginTK.isAdmin()) return "redirect:/";
+        if (loginTK == null || !loginTK.isAdmin()) return "redirect:/admin";
 
         if (taiKhoanRepository.existsByTenDangNhap(tk.getTenDangNhap())) {
             model.addAttribute("loi", "Tên đăng nhập đã tồn tại!");
@@ -61,7 +61,7 @@ public class TaiKhoanController {
                       HttpSession session) {
 
         TaiKhoan tk = (TaiKhoan) session.getAttribute("taiKhoan");
-        if (tk == null || !tk.isAdmin()) return "redirect:/";
+        if (tk == null || !tk.isAdmin()) return "redirect:/admin";
 
         model.addAttribute("tk",
                 taiKhoanRepository.findById(maTK).orElse(null));
@@ -72,7 +72,7 @@ public class TaiKhoanController {
     @PostMapping("/capnhat")
     public String capNhat(@ModelAttribute TaiKhoan tk, HttpSession session) {
         TaiKhoan loginTK = (TaiKhoan) session.getAttribute("taiKhoan");
-        if (loginTK == null || !loginTK.isAdmin()) return "redirect:/";
+        if (loginTK == null || !loginTK.isAdmin()) return "redirect:/admin";
 
         taiKhoanRepository.save(tk);
         return "redirect:/taikhoan";
@@ -82,7 +82,7 @@ public class TaiKhoanController {
     @GetMapping("/khoatk/{maTK}")
     public String khoaTK(@PathVariable int maTK, HttpSession session) {
         TaiKhoan loginTK = (TaiKhoan) session.getAttribute("taiKhoan");
-        if (loginTK == null || !loginTK.isAdmin()) return "redirect:/";
+        if (loginTK == null || !loginTK.isAdmin()) return "redirect:/admin";
         if (loginTK.getMaTK() == maTK) return "redirect:/taikhoan"; // Không tự khóa
 
         TaiKhoan tk = taiKhoanRepository.findById(maTK).orElse(null);

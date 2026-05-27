@@ -32,6 +32,9 @@ public class SanPhamController {
         return "sanpham/index";
     }
 
+    @Autowired
+    private com.example.demo.service.FileStorageService fileStorageService;
+
     // Form thêm sản phẩm mới
     @GetMapping("/them")
     public String them(Model model) {
@@ -41,7 +44,40 @@ public class SanPhamController {
 
     // Lưu sản phẩm mới
     @PostMapping("/luu")
-    public String luu(@ModelAttribute SanPham sp) {
+    public String luu(@ModelAttribute SanPham sp, 
+                      @RequestParam(value = "files", required = false) org.springframework.web.multipart.MultipartFile[] files,
+                      @RequestParam(value = "links", required = false) String[] links) {
+        
+        java.util.List<String> hinhAnhs = new java.util.ArrayList<>();
+        
+        // Handle external links
+        if (links != null) {
+            for (String link : links) {
+                if (link != null && !link.trim().isEmpty()) {
+                    // Split by comma in case user pastes multiple links in one input
+                    String[] splitLinks = link.split(",");
+                    for (String splitLink : splitLinks) {
+                        if (!splitLink.trim().isEmpty()) {
+                            hinhAnhs.add(splitLink.trim());
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Handle uploaded files
+        if (files != null) {
+            for (org.springframework.web.multipart.MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    String url = fileStorageService.storeFile(file);
+                    if (url != null) {
+                        hinhAnhs.add(url);
+                    }
+                }
+            }
+        }
+        
+        sp.setHinhAnhs(hinhAnhs);
         sanPhamRepository.save(sp);
         return "redirect:/sanpham";
     }
@@ -56,7 +92,49 @@ public class SanPhamController {
 
     // Cập nhật sản phẩm
     @PostMapping("/capnhat")
-    public String capNhat(@ModelAttribute SanPham sp) {
+    public String capNhat(@ModelAttribute SanPham sp,
+                          @RequestParam(value = "files", required = false) org.springframework.web.multipart.MultipartFile[] files,
+                          @RequestParam(value = "links", required = false) String[] links,
+                          @RequestParam(value = "keepImages", required = false) String[] keepImages) {
+        
+        java.util.List<String> hinhAnhs = new java.util.ArrayList<>();
+        
+        // Keep existing images selected by user
+        if (keepImages != null) {
+            for (String img : keepImages) {
+                if (img != null && !img.trim().isEmpty()) {
+                    hinhAnhs.add(img.trim());
+                }
+            }
+        }
+        
+        // Handle new external links
+        if (links != null) {
+            for (String link : links) {
+                if (link != null && !link.trim().isEmpty()) {
+                    String[] splitLinks = link.split(",");
+                    for (String splitLink : splitLinks) {
+                        if (!splitLink.trim().isEmpty()) {
+                            hinhAnhs.add(splitLink.trim());
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Handle newly uploaded files
+        if (files != null) {
+            for (org.springframework.web.multipart.MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    String url = fileStorageService.storeFile(file);
+                    if (url != null) {
+                        hinhAnhs.add(url);
+                    }
+                }
+            }
+        }
+        
+        sp.setHinhAnhs(hinhAnhs);
         sanPhamRepository.save(sp);
         return "redirect:/sanpham";
     }

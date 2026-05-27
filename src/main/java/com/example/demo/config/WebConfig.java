@@ -15,11 +15,20 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/**")                  // Áp dụng cho tất cả
+                .addPathPatterns(
+                        "/admin/**",
+                        "/sanpham/**",
+                        "/khachhang/**",
+                        "/hoadon/**",
+                        "/phieunhap/**",
+                        "/baohanh/**",
+                        "/baocao/**",
+                        "/taikhoan/**"
+                )
                 .excludePathPatterns(
-                        "/login",                        // Trang đăng nhập
-                        "/login/xacnhan",               // POST login
-                        "/css/**", "/js/**", "/img/**"  // Static files
+                        "/sanpham/chitiet/**", // (nếu có storefront API)
+                        "/login",
+                        "/css/**", "/js/**", "/img/**"
                 );
     }
 }

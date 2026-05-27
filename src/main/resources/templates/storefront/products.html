@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{storefront/layout :: layout(~{::div})}">
+<head><title>Tìm kiếm - T-Mobile</title></head>
+<body>
+    <div>
+        <div class="mb-6">
+            <a href="/" class="text-sm font-medium text-slate-500 hover:text-indigo-600 inline-flex items-center gap-1">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Trang chủ
+            </a>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
+                    <span th:if="${keyword != ''}" th:text="'Kết quả tìm kiếm: &quot;' + ${keyword} + '&quot;'"></span>
+                    <span th:if="${keyword == ''}">Tất cả sản phẩm</span>
+                </h1>
+                <p class="text-sm text-slate-500 mt-1" th:text="${dsSP.size()} + ' sản phẩm'"></p>
+            </div>
+            <div class="flex items-center gap-3">
+                <select id="sortSelect" onchange="applySortSearch()" class="!w-auto !py-2 !px-3 text-sm rounded-lg cursor-pointer">
+                    <option value="default" th:selected="${sortBy == 'default'}">Mới nhất</option>
+                    <option value="price-asc" th:selected="${sortBy == 'price-asc'}">Giá thấp → cao</option>
+                    <option value="price-desc" th:selected="${sortBy == 'price-desc'}">Giá cao → thấp</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sidebar Filters -->
+            <div class="w-full lg:w-64 shrink-0">
+                <form id="filterForm" action="/products" method="get" class="bg-white rounded-xl border border-slate-200 p-5 space-y-6">
+                    <input type="hidden" name="q" th:value="${keyword}">
+                    <input type="hidden" name="sort" th:value="${sortBy}">
+
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-slate-900">Bộ lọc</h3>
+                        <a href="/products" class="text-xs font-semibold text-indigo-600 hover:underline">Xóa lọc</a>
+                    </div>
+
+                    <!-- Hãng sản xuất -->
+                    <div th:if="${dsHangSX != null}">
+                        <h4 class="text-sm font-semibold text-slate-900 mb-3">Hãng sản xuất</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="hangSX" value="" th:checked="${hangSXFilter == ''}" class="text-indigo-600 focus:ring-indigo-500 w-4 h-4" onchange="this.form.submit()">
+                                <span class="text-sm text-slate-600">Tất cả</span>
+                            </label>
+                            <label th:each="h : ${dsHangSX}" class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="hangSX" th:value="${h}" th:checked="${hangSXFilter == h}" class="text-indigo-600 focus:ring-indigo-500 w-4 h-4" onchange="this.form.submit()">
+                                <span class="text-sm text-slate-600" th:text="${h}"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Mức giá -->
+                    <div class="pt-4 border-t border-slate-100">
+                        <h4 class="text-sm font-semibold text-slate-900 mb-3">Mức giá</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-slate-500 mb-1 block">Từ (VNĐ)</label>
+                                <input type="number" name="minPrice" th:value="${minPrice}" placeholder="0" class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-500 mb-1 block">Đến (VNĐ)</label>
+                                <input type="number" name="maxPrice" th:value="${maxPrice}" placeholder="Ví dụ: 10000000" class="w-full rounded-lg border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RAM -->
+                    <div class="pt-4 border-t border-slate-100">
+                        <h4 class="text-sm font-semibold text-slate-900 mb-3">RAM</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ram" value="4GB" th:checked="${ram == '4GB'}" class="peer hidden" onchange="this.form.submit()">
+                                <div class="px-3 py-1.5 rounded-lg border text-xs font-medium peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 text-slate-600 hover:bg-slate-50 transition-all">4GB</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ram" value="6GB" th:checked="${ram == '6GB'}" class="peer hidden" onchange="this.form.submit()">
+                                <div class="px-3 py-1.5 rounded-lg border text-xs font-medium peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 text-slate-600 hover:bg-slate-50 transition-all">6GB</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ram" value="8GB" th:checked="${ram == '8GB'}" class="peer hidden" onchange="this.form.submit()">
+                                <div class="px-3 py-1.5 rounded-lg border text-xs font-medium peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 text-slate-600 hover:bg-slate-50 transition-all">8GB</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="ram" value="12GB" th:checked="${ram == '12GB'}" class="peer hidden" onchange="this.form.submit()">
+                                <div class="px-3 py-1.5 rounded-lg border text-xs font-medium peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 text-slate-600 hover:bg-slate-50 transition-all">12GB</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- ROM -->
+                    <div class="pt-4 border-t border-slate-100">
+                        <h4 class="text-sm font-semibold text-slate-900 mb-3">Bộ nhớ trong</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="rom" value="64GB" th:checked="${rom == '64GB'}" class="peer hidden" onchange="this.form.submit()">
+                                <div class="px-3 py-1.5 rounded-lg border text-xs font-medium peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 text-slate-600 hover:bg-slate-50 transition-all">64GB</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="rom" value="128GB" th:checked="${rom == '128GB'}" class="peer hidden" onchange="this.form.submit()">
+                                <div class="px-3 py-1.5 rounded-lg border text-xs font-medium peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 text-slate-600 hover:bg-slate-50 transition-all">128GB</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="rom" value="256GB" th:checked="${rom == '256GB'}" class="peer hidden" onchange="this.form.submit()">
+                                <div class="px-3 py-1.5 rounded-lg border text-xs font-medium peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 text-slate-600 hover:bg-slate-50 transition-all">256GB</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="rom" value="512GB" th:checked="${rom == '512GB'}" class="peer hidden" onchange="this.form.submit()">
+                                <div class="px-3 py-1.5 rounded-lg border text-xs font-medium peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-600 text-slate-600 hover:bg-slate-50 transition-all">512GB</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+                        Áp dụng lọc
+                    </button>
+                </form>
+            </div>
+
+            <!-- Main Product List -->
+            <div class="flex-1">
+                <!-- Product Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
+                    <div th:each="sp : ${dsSP}"
+                         class="group bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col h-full cursor-pointer relative"
+                         th:onclick="'window.location.href=\'/product/' + ${sp.maSP} + '\''">
+                        
+                        <!-- Hết hàng badge -->
+                        <div th:if="${sp.soLuongTon <= 0}" class="absolute top-3 left-3 z-10">
+                            <span class="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Hết hàng</span>
+                        </div>
+                        
+                        <!-- Wishlist button -->
+                        <button type="button" th:attr="data-id=${sp.maSP}" th:onclick="|toggleWishlist(this, event, ${sp.maSP})|" class="wishlist-btn-toggle absolute top-3 right-3 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 hover:scale-110 transition-all shadow-sm">
+                            <i data-lucide="heart" class="w-4 h-4"></i>
+                        </button>
+
+                        <div class="p-5 pb-0 flex-1 flex justify-center items-center">
+                            <div class="w-full aspect-square bg-slate-50 rounded-lg flex items-center justify-center text-slate-300 group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                                <img th:if="${sp.hinhAnhs != null and !#lists.isEmpty(sp.hinhAnhs)}" th:src="${sp.hinhAnhs[0]}" class="w-full h-full object-cover" alt="Product Image">
+                                <i th:if="${sp.hinhAnhs == null or #lists.isEmpty(sp.hinhAnhs)}" data-lucide="smartphone" class="w-20 h-20 stroke-[1px]"></i>
+                            </div>
+                        </div>
+                        <div class="p-5 flex flex-col gap-2">
+                            <h3 th:text="${sp.tenSP}" class="font-semibold text-slate-900 leading-snug line-clamp-2 text-sm"></h3>
+                            <span class="text-xs text-slate-500" th:text="${sp.hangSX}"></span>
+                            
+                            <div class="mt-auto pt-2 flex items-center justify-between">
+                                <span th:text="${#numbers.formatDecimal(sp.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'" class="font-bold text-base text-indigo-600"></span>
+                                <form th:if="${sp.soLuongTon > 0}" action="/cart/add" method="post" th:onclick="'event.stopPropagation()'">
+                                    <input type="hidden" name="maSP" th:value="${sp.maSP}">
+                                    <input type="hidden" name="soLuong" value="1">
+                                    <button type="submit" class="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-colors" title="Thêm vào giỏ">
+                                        <i data-lucide="plus" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${dsSP == null || dsSP.empty}" class="col-span-full py-16 text-center bg-white rounded-xl border border-slate-100">
+                        <i data-lucide="search" class="w-14 h-14 mx-auto mb-4 text-slate-300 stroke-[1px]"></i>
+                        <p class="text-slate-500 font-medium">Không tìm thấy sản phẩm nào phù hợp.</p>
+                        <a href="/products" class="text-sm text-indigo-600 font-semibold mt-2 inline-block hover:underline">Xóa tất cả bộ lọc</a>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div th:if="${totalPages > 1}" class="flex justify-center items-center gap-2 mt-8">
+                    <a th:if="${currentPage > 0}"
+                       th:href="@{/products(q=${keyword}, hangSX=${hangSXFilter}, minPrice=${minPrice}, maxPrice=${maxPrice}, ram=${ram}, rom=${rom}, sort=${sortBy}, page=${currentPage - 1})}"
+                       class="w-10 h-10 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </a>
+
+                    <th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                        <a th:href="@{/products(q=${keyword}, hangSX=${hangSXFilter}, minPrice=${minPrice}, maxPrice=${maxPrice}, ram=${ram}, rom=${rom}, sort=${sortBy}, page=${i})}"
+                           th:text="${i + 1}"
+                           th:classappend="${i == currentPage ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}"
+                           class="w-10 h-10 rounded-lg border flex items-center justify-center text-sm font-semibold transition-colors"></a>
+                    </th:block>
+
+                    <a th:if="${currentPage < totalPages - 1}"
+                       th:href="@{/products(q=${keyword}, hangSX=${hangSXFilter}, minPrice=${minPrice}, maxPrice=${maxPrice}, ram=${ram}, rom=${rom}, sort=${sortBy}, page=${currentPage + 1})}"
+                       class="w-10 h-10 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors">
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function applySortSearch() {
+                const sort = document.getElementById('sortSelect').value;
+                const params = new URLSearchParams(window.location.search);
+                params.set('sort', sort);
+                params.set('page', '0');
+                window.location.href = '/products?' + params.toString();
+            }
+        </script>
+    </div>
+</body>
+</html>

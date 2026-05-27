@@ -1,20 +1,147 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head><meta charset="UTF-8"><title>Sửa sản phẩm</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+        <script src="https://unpkg.com/lucide@latest"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        indigo: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-slate-50 text-slate-700 antialiased; }
+            a { @apply no-underline text-inherit; }
+            table { @apply w-full text-sm text-left; }
+            th { @apply bg-slate-50 px-4 py-3 font-semibold text-slate-600 border-b border-slate-200 whitespace-nowrap; }
+            td { @apply px-4 py-3.5 border-b border-slate-100 text-slate-800 align-middle; }
+            tr:last-child td { border-bottom: none; }
+            tr:hover td { @apply bg-slate-50/80; }
+            label { @apply text-sm font-medium text-slate-700; }
+            input, select, textarea { @apply w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/15 transition-all; }
+            textarea { @apply resize-y min-h-[100px]; }
+        }
+        @layer components {
+            .sidebar { @apply fixed top-0 left-0 w-64 h-screen bg-slate-900 text-slate-300 flex flex-col overflow-y-auto z-[100]; }
+            .sidebar-header { @apply bg-slate-950 p-6 text-base font-semibold text-white border-b border-slate-800; }
+            .sidebar-header .brand { @apply flex items-center gap-2; }
+            .sidebar-header small { @apply block text-xs text-slate-400 font-normal mt-1; }
+            .sidebar nav { @apply flex-1 p-4 flex flex-col gap-1; }
+            .sidebar nav a { @apply flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-300 rounded-lg hover:bg-slate-800 hover:text-white transition-colors overflow-hidden whitespace-nowrap; }
+            .sidebar nav a.active { @apply bg-indigo-600 text-white shadow-sm; }
+            .sidebar nav a .lucide { @apply w-[18px] h-[18px] stroke-[2px] shrink-0; }
+            .sidebar-footer { @apply p-5 text-xs text-slate-500 border-t border-slate-800; }
+            
+            .main { @apply ml-64 min-h-screen flex flex-col bg-slate-50 transition-all duration-300; }
+            .topbar { @apply bg-white px-8 py-4 flex justify-between items-center border-b border-slate-200 sticky top-0 z-50 shadow-sm; }
+            .topbar h1 { @apply text-xl font-semibold text-slate-900 tracking-tight; }
+            .topbar-right { @apply flex items-center gap-4 text-sm text-slate-600; }
+            .user-badge { @apply bg-slate-100 px-3.5 py-1.5 rounded-full font-medium; }
+            .admin-badge { @apply bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full text-xs font-bold uppercase; }
+            .content { @apply p-8 flex-1; }
+            
+            .card { @apply bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6; }
+            .card-title { @apply text-base font-semibold text-slate-900 mb-5; }
+            .stat-grid { @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8; }
+            .stat-card { @apply bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col gap-2 relative overflow-hidden; }
+            .stat-card .label { @apply text-xs text-slate-500 font-semibold uppercase tracking-wider; }
+            .stat-card .value { @apply text-3xl font-bold text-slate-900 leading-tight; }
+            
+            .stat-card.green::before { content: ""; @apply absolute left-0 top-0 bottom-0 w-1 bg-emerald-500; }
+            .stat-card.orange::before { content: ""; @apply absolute left-0 top-0 bottom-0 w-1 bg-orange-500; }
+            .stat-card.red::before { content: ""; @apply absolute left-0 top-0 bottom-0 w-1 bg-red-500; }
+            .stat-card::before { content: ""; @apply absolute left-0 top-0 bottom-0 w-1 bg-indigo-500; }
+            
+            .toolbar { @apply flex justify-between items-center flex-wrap gap-4 mb-6; }
+            .toolbar-left { @apply flex items-center gap-3; }
+            .search-input { @apply px-4 py-2.5 border border-slate-300 rounded-lg text-sm w-72 text-slate-900 bg-white placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/15 transition-all; }
+            
+            .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-transparent transition-all focus-visible:outline-none focus-visible:ring-4 whitespace-nowrap; }
+            .btn .lucide { @apply w-4 h-4; }
+            .btn-primary { @apply bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm focus-visible:ring-indigo-600/30; }
+            .btn-success { @apply bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm focus-visible:ring-emerald-600/30; }
+            .btn-warning { @apply bg-orange-600 text-white hover:bg-orange-700 shadow-sm focus-visible:ring-orange-600/30; }
+            .btn-danger { @apply bg-red-600 text-white hover:bg-red-700 shadow-sm focus-visible:ring-red-600/30; }
+            .btn-secondary { @apply bg-white text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-50 focus-visible:ring-slate-400/30; }
+            .btn-sm { @apply px-3 py-1.5 text-[13px]; }
+            
+            .table-wrap { @apply overflow-x-auto bg-white rounded-lg border border-slate-200 shadow-sm mb-4; }
+            
+            .badge { @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border; }
+            .badge-green { @apply bg-emerald-50 text-emerald-700 border-emerald-200; }
+            .badge-red { @apply bg-red-50 text-red-700 border-red-200; }
+            .badge-orange { @apply bg-orange-50 text-orange-700 border-orange-200; }
+            .badge-blue { @apply bg-blue-50 text-blue-700 border-blue-200; }
+            .badge-gray { @apply bg-slate-50 text-slate-700 border-slate-200; }
+            
+            .form-grid { @apply grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5; }
+            .form-group { @apply flex flex-col gap-2; }
+            .form-group.full { @apply col-span-full; }
+            .form-actions { @apply flex gap-3 mt-6 pt-5 border-t border-slate-200; }
+            
+            .alert { @apply p-4 rounded-lg text-sm mb-6 flex items-center gap-2 font-medium border; }
+            .alert-danger { @apply bg-red-50 text-red-700 border-red-200; }
+            .alert-success { @apply bg-emerald-50 text-emerald-700 border-emerald-200; }
+            
+            .login-page { @apply min-h-screen flex items-center justify-center bg-slate-50 p-4; }
+            .login-box { @apply bg-white rounded-2xl p-10 w-full max-w-[420px] shadow-xl shadow-slate-200/50 border border-slate-100; }
+            .login-box h2 { @apply text-2xl font-bold mb-2 text-slate-900 tracking-tight text-center flex items-center justify-center gap-2; }
+            .login-box p { @apply text-sm text-slate-500 mb-8 text-center; }
+            
+            .info-grid { @apply grid grid-cols-[200px_1fr] gap-x-5 gap-y-3 text-sm; }
+            .info-grid .info-label { @apply text-slate-500 font-medium; }
+            .info-grid .info-value { @apply text-slate-900 font-medium; }
+            
+            @media (max-width: 768px) {
+                .sidebar { @apply w-16; }
+                .sidebar-header .brand { @apply hidden; }
+                .sidebar-footer { @apply hidden; }
+                .main { @apply ml-16; }
+                .stat-grid { @apply grid-cols-2; }
+                .form-grid { @apply grid-cols-1; }
+            }
+        }
+    </style>
+
+</head>
 <body>
 
 <div class="sidebar">
-    <div class="sidebar-header">📱 Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
+    <div class="sidebar-header"><i data-lucide="smartphone"></i> Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
     <nav>
-        <a th:href="@{/}">🏠 Trang chủ</a>
-        <a th:href="@{/sanpham}" class="active">📦 Sản phẩm</a>
-        <a th:href="@{/khachhang}">👥 Khách hàng</a>
-        <a th:href="@{/hoadon}">🧾 Bán hàng</a>
-        <a th:href="@{/phieunhap}">📥 Nhập hàng</a>
-        <a th:href="@{/baohanh}">🔧 Bảo hành</a>
-        <a th:href="@{/baocao}">📊 Báo cáo</a>
-        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}">🔑 Tài khoản</a>
+        <a th:href="@{/}"><i data-lucide="home"></i> Trang chủ</a>
+        <a th:href="@{/sanpham}" class="active"><i data-lucide="package"></i> Sản phẩm</a>
+        <a th:href="@{/khachhang}"><i data-lucide="users"></i> Khách hàng</a>
+        <a th:href="@{/hoadon}"><i data-lucide="receipt"></i> Bán hàng</a>
+        <a th:href="@{/donhang}"><i data-lucide="shopping-bag"></i> Đơn online</a>
+        <a th:href="@{/phieunhap}"><i data-lucide="download"></i> Nhập hàng</a>
+        <a th:href="@{/baohanh}"><i data-lucide="wrench"></i> Bảo hành</a>
+        <a th:href="@{/baocao}"><i data-lucide="bar-chart-2"></i> Báo cáo</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}"><i data-lucide="key"></i> Tài khoản</a>
     </nav>
     <div class="sidebar-footer">v1.0 - Nhóm 09</div>
 </div>
@@ -31,7 +158,7 @@
     <div class="content">
         <div class="card" style="max-width:700px">
             <div class="card-title">Cập nhật thông tin sản phẩm</div>
-            <form th:action="@{/sanpham/capnhat}" method="post" th:object="${sp}">
+            <form th:action="@{/sanpham/capnhat}" method="post" th:object="${sp}" enctype="multipart/form-data">
                 <input type="hidden" th:field="*{maSP}">
                 <div class="form-grid">
                     <div class="form-group full">
@@ -73,7 +200,38 @@
                         <label>Mô tả</label>
                         <textarea th:field="*{moTa}"></textarea>
                     </div>
-                </div>
+
+                    <div class="form-group full border-t border-slate-200 pt-4 mt-2">
+                        <label class="text-base font-semibold text-slate-900 mb-2 block">Hình ảnh sản phẩm</label>
+                        <div class="flex flex-col gap-4">
+                            <!-- Existing Images -->
+                            <div th:if="${sp.hinhAnhs != null and !#lists.isEmpty(sp.hinhAnhs)}" class="mb-2">
+                                <label class="text-sm font-medium text-slate-700 mb-2 block">Ảnh hiện tại (bỏ chọn để xóa)</label>
+                                <div class="flex flex-wrap gap-4">
+                                    <div th:each="img : ${sp.hinhAnhs}" class="relative w-24 h-24 border border-slate-200 rounded-lg overflow-hidden group">
+                                        <img th:src="${img}" class="w-full h-full object-cover">
+                                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                            <input type="checkbox" name="keepImages" th:value="${img}" checked class="w-5 h-5 cursor-pointer">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- File Upload -->
+                            <div>
+                                <label class="text-sm font-medium text-slate-700 mb-1 block">Tải ảnh mới lên</label>
+                                <input type="file" name="files" multiple accept="image/*" class="!py-2">
+                            </div>
+                            <!-- Link Input -->
+                            <div id="link-container" class="flex flex-col gap-2">
+                                <label class="text-sm font-medium text-slate-700 block">Hoặc dán Link ảnh mới</label>
+                                <div class="flex gap-2">
+                                    <input type="url" name="links" placeholder="https://..." class="flex-1">
+                                    <button type="button" onclick="addLinkInput()" class="btn btn-secondary !px-3" title="Thêm link khác"><i data-lucide="plus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-warning">💾 Cập nhật</button>
                     <a th:href="@{/sanpham}" class="btn btn-secondary">Hủy</a>
@@ -82,5 +240,20 @@
         </div>
     </div>
 </div>
+<script>
+    lucide.createIcons();
+    
+    function addLinkInput() {
+        const container = document.getElementById('link-container');
+        const div = document.createElement('div');
+        div.className = 'flex gap-2 mt-2';
+        div.innerHTML = `
+            <input type="url" name="links" placeholder="https://..." class="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/15">
+            <button type="button" onclick="this.parentElement.remove()" class="btn btn-danger !px-3" title="Xóa"><i data-lucide="trash-2"></i></button>
+        `;
+        container.appendChild(div);
+        lucide.createIcons({root: div});
+    }
+</script>
 </body>
 </html>

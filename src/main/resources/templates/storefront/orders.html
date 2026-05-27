@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{storefront/layout :: layout(~{::div})}">
+<head><title>Lịch sử đơn hàng - T-Mobile</title></head>
+<body>
+    <div class="max-w-5xl mx-auto">
+        <h1 class="text-3xl font-bold text-slate-900 mb-8 tracking-tight">Đơn hàng của bạn</h1>
+
+        <div th:if="${dsDH == null || dsDH.empty}" class="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
+            <i data-lucide="package" class="w-16 h-16 stroke-[1px] text-slate-300 mx-auto mb-4"></i>
+            <h2 class="text-xl font-semibold text-slate-900 mb-2">Chưa có đơn hàng nào</h2>
+            <p class="text-slate-500 mb-6">Bạn chưa thực hiện bất kỳ giao dịch nào trên T-Mobile.</p>
+            <a href="/" class="btn-primary inline-flex">
+                Mua sắm ngay
+            </a>
+        </div>
+
+        <div th:if="${dsDH != null && !dsDH.empty}" class="flex flex-col gap-6">
+            <div th:each="dh : ${dsDH}" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Order Header -->
+                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex flex-wrap gap-4 items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <div>
+                            <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">Mã đơn hàng</div>
+                            <div class="font-medium text-slate-900" th:text="'#' + ${dh.maDH}"></div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">Ngày đặt</div>
+                            <div class="font-medium text-slate-900" th:text="${#temporals.format(dh.ngayDat, 'dd/MM/yyyy HH:mm')}"></div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">Tổng tiền</div>
+                            <div class="font-bold text-indigo-600" th:text="${#numbers.formatDecimal(dh.tongTien, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <span th:if="${dh.trangThai == 'CHO_DUYET'}" class="badge bg-amber-50 text-amber-700 border-amber-200 px-3 py-1">Chờ duyệt</span>
+                        <span th:if="${dh.trangThai == 'DA_DUYET'}" class="badge bg-blue-50 text-blue-700 border-blue-200 px-3 py-1">Đã duyệt (Đang giao)</span>
+                        <span th:if="${dh.trangThai == 'DA_GIAO'}" class="badge bg-emerald-50 text-emerald-700 border-emerald-200 px-3 py-1">Hoàn thành</span>
+                        <span th:if="${dh.trangThai == 'DA_HUY'}" class="badge bg-red-50 text-red-700 border-red-200 px-3 py-1">Đã hủy</span>
+                    </div>
+                </div>
+
+                <!-- Order Body (Items) -->
+                <div class="p-6 flex flex-col gap-4">
+                    <div th:each="item : ${dh.chiTiet}" class="flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-slate-200">
+                                <img th:if="${item.sanPham.hinhAnhs != null and !#lists.isEmpty(item.sanPham.hinhAnhs)}" th:src="${item.sanPham.hinhAnhs[0]}" class="w-full h-full object-cover">
+                                <i th:if="${item.sanPham.hinhAnhs == null or #lists.isEmpty(item.sanPham.hinhAnhs)}" data-lucide="smartphone" class="w-6 h-6 text-slate-400"></i>
+                            </div>
+                            <div>
+                                <a th:href="@{'/product/' + ${item.sanPham.maSP}}" class="font-semibold text-slate-900 hover:text-indigo-600 text-sm" th:text="${item.sanPham.tenSP}"></a>
+                                <div class="text-xs text-slate-500 mt-0.5">Số lượng: <span class="font-semibold text-slate-700" th:text="${item.soLuong}"></span></div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-1">
+                            <div class="font-medium text-slate-900 text-sm" th:text="${#numbers.formatDecimal(item.donGia, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
+                            <div th:if="${dh.trangThai == 'DA_GIAO' and orderImeis != null and orderImeis.get(dh.maDH) != null}" class="text-xs text-slate-500">
+                                <span class="font-semibold text-slate-700">IMEI:</span>
+                                <span th:each="imei, stat : ${orderImeis.get(dh.maDH)}" th:text="${stat.index == 0 ? imei : ', ' + imei}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

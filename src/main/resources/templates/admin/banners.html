@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::section})}">
+<head><title>Quản lý Banner</title></head>
+<body>
+    <section>
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Quản lý Banner</h1>
+                <p class="text-sm text-slate-500 mt-1">Thêm và chỉnh sửa banner trên trang chủ</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Form -->
+            <div class="card p-6">
+                <h2 class="font-semibold text-slate-900 mb-4" th:text="${banner.maBanner != 0 ? 'Chỉnh sửa Banner' : 'Thêm Banner mới'}"></h2>
+                <form action="/admin/banners/save" method="post" th:object="${banner}" class="flex flex-col gap-4">
+                    <input type="hidden" th:field="*{maBanner}">
+                    <div>
+                        <label class="text-sm font-medium text-slate-700 mb-1 block">Tiêu đề</label>
+                        <input type="text" th:field="*{tieuDe}" required placeholder="VD: Khuyến mãi cuối năm">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-slate-700 mb-1 block">Mô tả</label>
+                        <textarea th:field="*{moTa}" rows="2" placeholder="Mô tả ngắn cho banner"></textarea>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-slate-700 mb-1 block">URL hình ảnh</label>
+                        <input type="text" th:field="*{hinhAnh}" placeholder="https://...">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-slate-700 mb-1 block">Link đến</label>
+                        <input type="text" th:field="*{linkDen}" placeholder="VD: #products">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-sm font-medium text-slate-700 mb-1 block">Thứ tự</label>
+                            <input type="number" th:field="*{thuTu}" min="0">
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-slate-700 mb-1 block">Trạng thái</label>
+                            <select th:field="*{trangThai}">
+                                <option value="true">Hiển thị</option>
+                                <option value="false">Ẩn</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        <span th:text="${banner.maBanner != 0 ? 'Cập nhật' : 'Thêm mới'}"></span>
+                    </button>
+                    <a th:if="${banner.maBanner != 0}" href="/admin/banners" class="btn-outline text-center">Hủy</a>
+                </form>
+            </div>
+
+            <!-- List -->
+            <div class="lg:col-span-2">
+                <div class="card overflow-hidden">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tiêu đề</th>
+                                <th>Thứ tự</th>
+                                <th>Trạng thái</th>
+                                <th class="text-right">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="b : ${dsBanner}">
+                                <td th:text="${b.maBanner}" class="font-mono text-sm"></td>
+                                <td>
+                                    <div class="font-semibold text-slate-900" th:text="${b.tieuDe}"></div>
+                                    <div class="text-xs text-slate-500 truncate max-w-[200px]" th:text="${b.moTa}"></div>
+                                </td>
+                                <td th:text="${b.thuTu}"></td>
+                                <td>
+                                    <span th:if="${b.trangThai}" class="badge bg-emerald-50 text-emerald-700">Hiển thị</span>
+                                    <span th:if="${!b.trangThai}" class="badge bg-slate-100 text-slate-500">Ẩn</span>
+                                </td>
+                                <td class="text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a th:href="@{'/admin/banners/edit/' + ${b.maBanner}}" class="text-indigo-600 hover:text-indigo-800 p-1">
+                                            <i data-lucide="pencil" class="w-4 h-4"></i>
+                                        </a>
+                                        <form th:action="@{'/admin/banners/delete/' + ${b.maBanner}}" method="post" class="inline">
+                                            <button type="submit" class="text-red-500 hover:text-red-700 p-1" onclick="return confirm('Xóa banner này?')">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${dsBanner == null || dsBanner.empty}">
+                                <td colspan="5" class="text-center text-slate-400 py-8">Chưa có banner nào</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{storefront/layout :: layout(~{::div})}">
+<head><title>Chi tiết sản phẩm</title></head>
+<body>
+    <div class="max-w-6xl mx-auto">
+        <!-- Breadcrumb -->
+        <div class="mb-6 flex items-center gap-2 text-sm text-slate-500">
+            <a href="/" class="hover:text-indigo-600">Trang chủ</a>
+            <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            <span th:if="${sp.hangSX != null}" th:text="${sp.hangSX}" class="hover:text-indigo-600"></span>
+            <i th:if="${sp.hangSX != null}" data-lucide="chevron-right" class="w-3 h-3"></i>
+            <span th:text="${sp.tenSP}" class="text-slate-900 font-medium truncate max-w-[200px]"></span>
+        </div>
+
+        <!-- Product Main -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col md:flex-row mb-12">
+            <!-- Product Image -->
+            <div class="md:w-1/2 p-6 md:p-12 bg-slate-50 flex flex-col items-center border-b md:border-b-0 md:border-r border-slate-200">
+                <!-- Main Image -->
+                <div class="w-full aspect-square flex items-center justify-center bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-4">
+                    <img th:if="${sp.hinhAnhs != null and !#lists.isEmpty(sp.hinhAnhs)}" th:src="${sp.hinhAnhs[0]}" id="mainImage" class="w-full h-full object-contain">
+                    <i th:if="${sp.hinhAnhs == null or #lists.isEmpty(sp.hinhAnhs)}" data-lucide="smartphone" class="w-48 h-48 stroke-[1px] text-slate-300"></i>
+                </div>
+                
+                <!-- Thumbnails -->
+                <div th:if="${sp.hinhAnhs != null and #lists.size(sp.hinhAnhs) > 1}" class="flex gap-2 overflow-x-auto w-full pb-2">
+                    <div th:each="img, stat : ${sp.hinhAnhs}" 
+                         class="w-16 h-16 md:w-20 md:h-20 flex-shrink-0 bg-white rounded-lg border-2 cursor-pointer overflow-hidden transition-all thumbnail-img"
+                         th:classappend="${stat.index == 0 ? 'border-indigo-600' : 'border-slate-200 opacity-70 hover:opacity-100'}"
+                         th:attr="data-image=${img}"
+                         onclick="changeMainImage(this, this.getAttribute('data-image'))">
+                        <img th:src="${img}" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <script>
+                    function changeMainImage(el, src) {
+                        document.getElementById('mainImage').src = src;
+                        document.querySelectorAll('.thumbnail-img').forEach(function(elem) {
+                            elem.classList.remove('border-indigo-600');
+                            elem.classList.add('border-slate-200', 'opacity-70');
+                        });
+                        el.classList.remove('border-slate-200', 'opacity-70');
+                        el.classList.add('border-indigo-600');
+                    }
+                </script>
+            </div>
+
+            <!-- Product Info -->
+            <div class="md:w-1/2 p-8 md:p-10 flex flex-col">
+                <div class="mb-3 flex items-center gap-3">
+                    <span th:if="${sp.hangSX != null}" class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider" th:text="${sp.hangSX}"></span>
+                    <span th:if="${sp.loaiSP != null}" class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full text-xs font-semibold" th:text="${sp.loaiSP}"></span>
+                </div>
+                <h1 th:text="${sp.tenSP}" class="text-2xl md:text-3xl font-bold text-slate-900 mb-4 tracking-tight"></h1>
+
+                <!-- Rating summary -->
+                <div th:if="${soLuongDG > 0}" class="flex items-center gap-3 mb-5">
+                    <div class="flex items-center gap-1">
+                        <span th:each="i : ${#numbers.sequence(1, 5)}"
+                              th:classappend="${i <= diemTB ? 'text-amber-400' : 'text-slate-200'}">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </span>
+                    </div>
+                    <span class="text-sm font-semibold text-slate-700" th:text="${diemTB}"></span>
+                    <span class="text-sm text-slate-500" th:text="'(' + ${soLuongDG} + ' đánh giá)'"></span>
+                </div>
+
+                <div class="text-3xl font-bold text-indigo-600 mb-6" th:text="${#numbers.formatDecimal(sp.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
+
+                <div th:if="${sp.moTa != null}" class="text-sm text-slate-600 leading-relaxed mb-8 prose prose-slate prose-sm" th:utext="${sp.moTa}"></div>
+
+                <!-- Stock Info -->
+                <div class="mb-8 flex items-center gap-2">
+                    <div th:if="${sp.soLuongTon > 0}" class="flex items-center gap-2 text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg text-sm font-medium">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        <span>Còn hàng (<span th:text="${sp.soLuongTon}"></span> sản phẩm)</span>
+                    </div>
+                    <div th:if="${sp.soLuongTon <= 0}" class="flex items-center gap-2 text-red-600 bg-red-50 px-3 py-1.5 rounded-lg text-sm font-medium">
+                        <i data-lucide="x-circle" class="w-4 h-4"></i>
+                        <span>Tạm hết hàng</span>
+                    </div>
+                </div>
+
+                <!-- Add to cart form -->
+                <form th:if="${sp.soLuongTon > 0}" action="/cart/add" method="post" class="mt-auto flex gap-4">
+                    <input type="hidden" name="maSP" th:value="${sp.maSP}">
+                    <div class="relative w-24 shrink-0">
+                        <label for="soLuong" class="sr-only">Số lượng</label>
+                        <input type="number" id="soLuong" name="soLuong" value="1" min="1" th:max="${sp.soLuongTon}" class="text-center font-medium !py-3">
+                    </div>
+                    <button type="submit" class="btn-primary flex-1 !py-3 text-base">
+                        <i data-lucide="shopping-cart" class="w-5 h-5"></i> Thêm vào giỏ hàng
+                    </button>
+                    <button type="button" th:attr="data-id=${sp.maSP}" th:onclick="|toggleWishlist(this, event, ${sp.maSP})|" class="wishlist-btn-toggle w-12 h-12 shrink-0 bg-rose-50 text-slate-400 hover:text-rose-500 hover:bg-rose-100 rounded-lg flex items-center justify-center transition-colors">
+                        <i data-lucide="heart" class="w-6 h-6"></i>
+                    </button>
+                </form>
+
+                <div th:if="${sp.soLuongTon <= 0}" class="mt-auto">
+                    <button disabled class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 text-slate-400 rounded-lg text-base font-semibold cursor-not-allowed">
+                        Sản phẩm đã hết hàng
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- ĐÁNH GIÁ SẢN PHẨM (Reviews)                          -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <div id="reviews" class="mb-12">
+            <h2 class="text-xl font-bold text-slate-900 mb-6 tracking-tight flex items-center gap-2">
+                <i data-lucide="message-square" class="w-5 h-5 text-indigo-600"></i>
+                Đánh giá sản phẩm
+                <span th:if="${soLuongDG > 0}" class="text-sm font-normal text-slate-500" th:text="'(' + ${soLuongDG} + ')'"></span>
+            </h2>
+
+            <!-- Form đánh giá (chỉ hiện khi đăng nhập + chưa đánh giá) -->
+            <div th:if="${customer != null && (daDanhGia == null || !daDanhGia)}" class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-8">
+                <h3 class="font-semibold text-slate-900 mb-4">Viết đánh giá của bạn</h3>
+                <form th:action="@{'/product/' + ${sp.maSP} + '/review'}" method="post" class="flex flex-col gap-4">
+                    <!-- Star Rating -->
+                    <div>
+                        <label class="text-sm font-medium text-slate-700 mb-2 block">Đánh giá sao</label>
+                        <div class="flex gap-1" id="starRating">
+                            <input type="hidden" name="soSao" id="soSaoInput" value="5">
+                            <button type="button" th:each="i : ${#numbers.sequence(1, 5)}"
+                                    th:onclick="'setStar(' + ${i} + ')'"
+                                    class="star-btn text-amber-400 hover:scale-110 transition-transform">
+                                <i data-lucide="star" class="w-7 h-7 fill-current"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="noiDung" class="text-sm font-medium text-slate-700 mb-2 block">Nhận xét</label>
+                        <textarea id="noiDung" name="noiDung" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..." required class="resize-none"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary self-start">
+                        <i data-lucide="send" class="w-4 h-4"></i> Gửi đánh giá
+                    </button>
+                </form>
+            </div>
+
+            <!-- Thông báo nếu chưa đăng nhập -->
+            <div th:if="${customer == null}" class="bg-slate-50 rounded-xl border border-slate-200 p-6 mb-8 text-center">
+                <p class="text-slate-600 mb-3">Đăng nhập để đánh giá sản phẩm này.</p>
+                <a href="/login" class="btn-primary inline-flex">Đăng nhập</a>
+            </div>
+
+            <!-- Đã đánh giá -->
+            <div th:if="${customer != null && daDanhGia != null && daDanhGia}" class="bg-emerald-50 rounded-xl border border-emerald-200 p-4 mb-8 text-center text-sm text-emerald-700 font-medium flex items-center justify-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4"></i> Bạn đã đánh giá sản phẩm này.
+            </div>
+
+            <!-- Danh sách đánh giá -->
+            <div class="flex flex-col gap-4">
+                <div th:each="dg : ${dsDanhGia}" class="bg-white rounded-xl border border-slate-100 shadow-sm p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-semibold text-sm"
+                                 th:text="${dg.khachHang.tenKH != null ? dg.khachHang.tenKH.substring(0, 1).toUpperCase() : '?'}"></div>
+                            <div>
+                                <div class="font-semibold text-sm text-slate-900" th:text="${dg.khachHang.tenKH}"></div>
+                                <div class="text-xs text-slate-400" th:text="${#temporals.format(dg.ngayDG, 'dd/MM/yyyy HH:mm')}"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-0.5">
+                            <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                  th:classappend="${i <= dg.soSao ? 'text-amber-400' : 'text-slate-200'}">
+                                <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed" th:text="${dg.noiDung}"></p>
+                </div>
+
+                <div th:if="${dsDanhGia == null || dsDanhGia.empty}" class="py-8 text-center text-slate-400">
+                    <i data-lucide="message-circle" class="w-10 h-10 mx-auto mb-3 stroke-[1px]"></i>
+                    <p class="text-sm">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <!-- SẢN PHẨM LIÊN QUAN                                    -->
+        <!-- ═══════════════════════════════════════════════════════ -->
+        <div th:if="${spLienQuan != null && !spLienQuan.empty}" class="mb-12">
+            <h2 class="text-xl font-bold text-slate-900 mb-6 tracking-tight">Sản phẩm liên quan</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div th:each="sp2 : ${spLienQuan}"
+                     class="group bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+                     th:onclick="'window.location.href=\'/product/' + ${sp2.maSP} + '\''">
+                    <div class="p-5 pb-0 flex justify-center items-center relative">
+                        <!-- Wishlist button -->
+                        <button type="button" th:attr="data-id=${sp2.maSP}" th:onclick="|toggleWishlist(this, event, ${sp2.maSP})|" class="wishlist-btn-toggle absolute top-7 right-7 z-10 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 hover:scale-110 transition-all shadow-sm">
+                            <i data-lucide="heart" class="w-4 h-4"></i>
+                        </button>
+                        <div class="w-full aspect-square bg-slate-50 rounded-lg flex items-center justify-center text-slate-300 group-hover:scale-105 transition-transform duration-500">
+                            <i data-lucide="smartphone" class="w-16 h-16 stroke-[1px]"></i>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 th:text="${sp2.tenSP}" class="font-semibold text-slate-900 text-sm leading-snug line-clamp-2 mb-1"></h3>
+                        <div class="mt-2 font-bold text-indigo-600 text-sm" th:text="${#numbers.formatDecimal(sp2.giaBan, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Star Rating Script -->
+        <script>
+            function setStar(n) {
+                document.getElementById('soSaoInput').value = n;
+                const btns = document.querySelectorAll('.star-btn');
+                btns.forEach((btn, i) => {
+                    const icon = btn.querySelector('i');
+                    if (i < n) {
+                        btn.classList.add('text-amber-400');
+                        btn.classList.remove('text-slate-300');
+                    } else {
+                        btn.classList.remove('text-amber-400');
+                        btn.classList.add('text-slate-300');
+                    }
+                });
+            }
+        </script>
+    </div>
+</body>
+</html>
