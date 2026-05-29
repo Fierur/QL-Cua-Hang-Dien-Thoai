@@ -12,6 +12,7 @@ import java.util.List;
 public interface SanPhamRepository extends JpaRepository<SanPham, Integer> {
     // Tìm kiếm sản phẩm theo tên
     List<SanPham> findByTenSPContainingIgnoreCase(String tenSP);
+    List<SanPham> findByTenSP(String tenSP);
     // Lọc theo hãng sản xuất
     List<SanPham> findByHangSX(String hangSX);
     // Lấy sản phẩm còn hàng

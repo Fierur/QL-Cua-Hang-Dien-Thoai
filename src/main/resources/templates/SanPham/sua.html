@@ -134,11 +134,11 @@
     <div class="sidebar-header"><i data-lucide="smartphone"></i> Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
     <nav>
         <a th:href="@{/}"><i data-lucide="home"></i> Trang chủ</a>
-        <a th:href="@{/sanpham}" class="active"><i data-lucide="package"></i> Sản phẩm</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/sanpham}" class="active"><i data-lucide="package"></i> Sản phẩm</a>
         <a th:href="@{/khachhang}"><i data-lucide="users"></i> Khách hàng</a>
         <a th:href="@{/hoadon}"><i data-lucide="receipt"></i> Bán hàng</a>
         <a th:href="@{/donhang}"><i data-lucide="shopping-bag"></i> Đơn online</a>
-        <a th:href="@{/phieunhap}"><i data-lucide="download"></i> Nhập hàng</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/phieunhap}"><i data-lucide="download"></i> Nhập hàng</a>
         <a th:href="@{/baohanh}"><i data-lucide="wrench"></i> Bảo hành</a>
         <a th:href="@{/baocao}"><i data-lucide="bar-chart-2"></i> Báo cáo</a>
         <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}"><i data-lucide="key"></i> Tài khoản</a>

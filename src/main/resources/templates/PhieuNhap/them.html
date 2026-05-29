@@ -115,6 +115,13 @@
             .info-grid { @apply grid grid-cols-[200px_1fr] gap-x-5 gap-y-3 text-sm; }
             .info-grid .info-label { @apply text-slate-500 font-medium; }
             .info-grid .info-value { @apply text-slate-900 font-medium; }
+
+            .product-line { @apply rounded-xl border border-slate-200 bg-white p-5 shadow-sm; }
+            .product-line-header { @apply flex items-center justify-between gap-4 mb-4; }
+            .product-line-title { @apply text-sm font-semibold text-slate-900; }
+            .product-grid { @apply grid grid-cols-1 lg:grid-cols-4 gap-4; }
+            .imei-grid { @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4; }
+            .help-text { @apply text-xs text-slate-500 leading-relaxed; }
             
             @media (max-width: 768px) {
                 .sidebar { @apply w-16; }
@@ -133,11 +140,11 @@
     <div class="sidebar-header"><i data-lucide="smartphone"></i> Cửa Hàng ĐT<small>Quản lý hệ thống</small></div>
     <nav>
         <a th:href="@{/}"><i data-lucide="home"></i> Trang chủ</a>
-        <a th:href="@{/sanpham}"><i data-lucide="package"></i> Sản phẩm</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/sanpham}"><i data-lucide="package"></i> Sản phẩm</a>
         <a th:href="@{/khachhang}"><i data-lucide="users"></i> Khách hàng</a>
         <a th:href="@{/hoadon}"><i data-lucide="receipt"></i> Bán hàng</a>
         <a th:href="@{/donhang}"><i data-lucide="shopping-bag"></i> Đơn online</a>
-        <a th:href="@{/phieunhap}" class="active"><i data-lucide="download"></i> Nhập hàng</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/phieunhap}" class="active"><i data-lucide="download"></i> Nhập hàng</a>
         <a th:href="@{/baohanh}"><i data-lucide="wrench"></i> Bảo hành</a>
         <a th:href="@{/baocao}"><i data-lucide="bar-chart-2"></i> Báo cáo</a>
         <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/taikhoan}"><i data-lucide="key"></i> Tài khoản</a>
@@ -154,59 +161,193 @@
         </div>
     </div>
     <div class="content">
-        <div class="card" style="max-width:700px">
-            <div class="card-title">Thông tin phiếu nhập</div>
-            <form action="/phieunhap/luu" method="post">
+        <div class="alert alert-danger" th:if="${loi != null}">
+            <i data-lucide="alert-circle"></i>
+            <span th:text="${loi}"></span>
+        </div>
+
+        <form action="/phieunhap/luu" method="post" id="importForm">
+            <div class="card">
+                <div class="card-title">Nhà cung cấp</div>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Nhà cung cấp *</label>
-                        <select name="maNCC" required>
+                        <label>Chọn nhà cung cấp đã có</label>
+                        <select name="maNCC">
                             <option value="">-- Chọn NCC --</option>
                             <option th:each="ncc : ${dsNCC}"
                                     th:value="${ncc.maNCC}"
+                                    th:selected="${selectedMaNCC != null and selectedMaNCC == ncc.maNCC}"
                                     th:text="${ncc.tenNCC}">
                             </option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Sản phẩm nhập *</label>
-                        <select name="maSP" required>
-                            <option value="">-- Chọn sản phẩm --</option>
-                            <option th:each="sp : ${dsSP}"
-                                    th:value="${sp.maSP}"
-                                    th:text="${sp.tenSP}">
-                            </option>
-                        </select>
+                        <label>Tên nhà cung cấp mới</label>
+                        <input type="text" name="tenNCCMoi" th:value="${tenNCCMoi}" placeholder="Nhập nếu chưa có NCC">
                     </div>
                     <div class="form-group">
-                        <label>Số lượng nhập</label>
-                        <input type="number" name="soLuong" min="1" value="1"
-                               placeholder="Số lượng sẽ tính tự động từ IMEI">
+                        <label>SĐT nhà cung cấp mới</label>
+                        <input type="text" name="sdtNCCMoi" th:value="${sdtNCCMoi}" placeholder="VD: 0901000001">
                     </div>
                     <div class="form-group">
-                        <label>Giá nhập (VNĐ/máy) *</label>
-                        <input type="number" name="giaNhap" min="0" placeholder="VD: 28000000" required>
+                        <label>Địa chỉ nhà cung cấp mới</label>
+                        <input type="text" name="diaChiNCCMoi" th:value="${diaChiNCCMoi}" placeholder="Địa chỉ liên hệ">
                     </div>
                     <div class="form-group full">
-                        <label>Danh sách IMEI *
-                            <small style="font-weight:400;color:#94a3b8">(mỗi IMEI 1 dòng hoặc cách nhau bằng dấu phẩy)</small>
-                        </label>
-                        <textarea name="danhSachImei" rows="5"
-                                  placeholder="352999001234001&#10;352999001234002&#10;352999001234003" required></textarea>
-                    </div>
-                    <div class="form-group full">
-                        <label>Ghi chú</label>
-                        <input type="text" name="ghiChu" placeholder="Ghi chú thêm (nếu có)">
+                        <p class="help-text">Nếu nhập thông tin nhà cung cấp mới, hệ thống sẽ dùng nhà cung cấp mới thay cho lựa chọn trong danh sách.</p>
                     </div>
                 </div>
+            </div>
+
+            <div class="card">
+                <div class="toolbar">
+                    <div>
+                        <div class="card-title" style="margin-bottom:4px">Sản phẩm nhập</div>
+                        <p class="help-text">Gõ đúng tên sản phẩm cũ để nhập thêm tồn kho, hoặc gõ tên mới và nhập giá bán để tạo sản phẩm mới.</p>
+                    </div>
+                    <button type="button" class="btn btn-success" id="addLineBtn">
+                        <i data-lucide="plus"></i> Thêm sản phẩm
+                    </button>
+                </div>
+
+                <datalist id="productNames">
+                    <option th:each="sp : ${dsSP}" th:value="${sp.tenSP}"></option>
+                </datalist>
+
+                <div id="productLines" class="flex flex-col gap-5"></div>
+
+                <div class="form-group full" style="margin-top:24px">
+                    <label>Ghi chú</label>
+                    <input type="text" name="ghiChu" th:value="${ghiChu}" placeholder="Ghi chú thêm nếu có">
+                </div>
+
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-warning">💾 Lưu phiếu nhập</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i data-lucide="save"></i> Lưu phiếu nhập
+                    </button>
                     <a th:href="@{/phieunhap}" class="btn btn-secondary">Hủy</a>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 </div>
-<script>lucide.createIcons();</script>
+
+<script th:inline="javascript">
+    const initialLines = /*[[${formLines}]]*/ [
+        {tenSP: '', giaBan: '', soLuong: '1', giaNhap: '', imeis: ['']}
+    ];
+
+    const linesContainer = document.getElementById('productLines');
+    const addLineBtn = document.getElementById('addLineBtn');
+
+    function renumberLines() {
+        document.querySelectorAll('.product-line').forEach((line, index) => {
+            line.dataset.index = index;
+            line.querySelector('.product-line-title').textContent = `Sản phẩm #${index + 1}`;
+            line.querySelectorAll('[data-imei-input]').forEach(input => {
+                input.name = `imeis[${index}]`;
+            });
+        });
+    }
+
+    function createImeiInput(rowIndex, imeiIndex, value) {
+        const wrap = document.createElement('div');
+        wrap.className = 'form-group';
+        wrap.innerHTML = `
+            <label>IMEI ${imeiIndex + 1}</label>
+            <input type="text" data-imei-input name="imeis[${rowIndex}]" placeholder="Nhập IMEI mới" required>
+        `;
+        wrap.querySelector('input').value = value || '';
+        return wrap;
+    }
+
+    function syncImeiInputs(line) {
+        const rowIndex = Number(line.dataset.index);
+        const quantityInput = line.querySelector('[data-quantity]');
+        const imeiContainer = line.querySelector('[data-imei-container]');
+        const existingValues = Array.from(imeiContainer.querySelectorAll('[data-imei-input]')).map(input => input.value);
+        const quantity = Math.max(1, Number(quantityInput.value || 1));
+
+        quantityInput.value = quantity;
+        imeiContainer.innerHTML = '';
+        for (let i = 0; i < quantity; i++) {
+            imeiContainer.appendChild(createImeiInput(rowIndex, i, existingValues[i] || ''));
+        }
+        lucide.createIcons();
+    }
+
+    function createProductLine(data) {
+        const line = document.createElement('div');
+        line.className = 'product-line';
+        line.dataset.index = linesContainer.children.length;
+        line.innerHTML = `
+            <div class="product-line-header">
+                <div>
+                    <div class="product-line-title">Sản phẩm</div>
+                    <p class="help-text">Mỗi IMEI là một máy mới chưa có trong kho.</p>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm" data-remove-line>
+                    <i data-lucide="trash-2"></i> Xóa
+                </button>
+            </div>
+            <div class="product-grid">
+                <div class="form-group lg:col-span-2">
+                    <label>Sản phẩm nhập *</label>
+                    <input type="text" name="tenSP" list="productNames" data-product-name placeholder="Tên sản phẩm" required>
+                </div>
+                <div class="form-group">
+                    <label>Giá bán nếu sản phẩm mới</label>
+                    <input type="number" name="giaBan" min="0" data-sale-price placeholder="VD: 34990000">
+                </div>
+                <div class="form-group">
+                    <label>Số lượng *</label>
+                    <input type="number" name="soLuong" min="1" value="1" data-quantity required>
+                </div>
+                <div class="form-group">
+                    <label>Giá nhập/máy *</label>
+                    <input type="number" name="giaNhap" min="0" data-import-price placeholder="VD: 28000000" required>
+                </div>
+            </div>
+            <div class="imei-grid" data-imei-container></div>
+        `;
+
+        line.querySelector('[data-product-name]').value = data?.tenSP || '';
+        line.querySelector('[data-sale-price]').value = data?.giaBan || '';
+        line.querySelector('[data-quantity]').value = data?.soLuong || '1';
+        line.querySelector('[data-import-price]').value = data?.giaNhap || '';
+
+        const imeis = Array.isArray(data?.imeis) && data.imeis.length > 0 ? data.imeis : [''];
+        const quantity = Math.max(1, Number(data?.soLuong || imeis.length || 1));
+        line.querySelector('[data-quantity]').value = quantity;
+        const imeiContainer = line.querySelector('[data-imei-container]');
+        for (let i = 0; i < quantity; i++) {
+            imeiContainer.appendChild(createImeiInput(Number(line.dataset.index), i, imeis[i] || ''));
+        }
+
+        line.querySelector('[data-quantity]').addEventListener('input', () => syncImeiInputs(line));
+        line.querySelector('[data-remove-line]').addEventListener('click', () => {
+            if (linesContainer.children.length === 1) {
+                return;
+            }
+            line.remove();
+            renumberLines();
+        });
+
+        linesContainer.appendChild(line);
+        renumberLines();
+        lucide.createIcons();
+    }
+
+    addLineBtn.addEventListener('click', () => createProductLine({
+        tenSP: '',
+        giaBan: '',
+        soLuong: '1',
+        giaNhap: '',
+        imeis: ['']
+    }));
+
+    (Array.isArray(initialLines) && initialLines.length > 0 ? initialLines : [{}]).forEach(createProductLine);
+    lucide.createIcons();
+</script>
 </body>
 </html>

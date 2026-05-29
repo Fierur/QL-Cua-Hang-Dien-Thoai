@@ -59,8 +59,8 @@
                                 <select name="selectedImeis" class="flex-1" required>
                                     <option value="">-- Chọn IMEI xuất kho --</option>
                                     <!-- Use dynamic model attribute name: imeis_1, imeis_2 -->
-                                    <option th:each="imei : ${__${'imeis_' + ct.sanPham.maSP}__}" 
-                                            th:value="${imei.imei}" 
+                                    <option th:each="imei : ${__${'imeis_' + ct.sanPham.maSP}__}"
+                                            th:value="${imei.imei}"
                                             th:text="${imei.imei}"></option>
                                 </select>
                             </div>

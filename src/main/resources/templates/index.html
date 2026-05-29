@@ -140,11 +140,11 @@
     </div>
     <nav>
         <a th:href="@{/}" class="active"><i data-lucide="home"></i> Trang chủ</a>
-        <a th:href="@{/sanpham}"><i data-lucide="package"></i> Sản phẩm</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/sanpham}"><i data-lucide="package"></i> Sản phẩm</a>
         <a th:href="@{/khachhang}"><i data-lucide="users"></i> Khách hàng</a>
         <a th:href="@{/hoadon}"><i data-lucide="receipt"></i> Bán hàng</a>
         <a th:href="@{/donhang}"><i data-lucide="shopping-bag"></i> Đơn online</a>
-        <a th:href="@{/phieunhap}"><i data-lucide="download"></i> Nhập hàng</a>
+        <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}" th:href="@{/phieunhap}"><i data-lucide="download"></i> Nhập hàng</a>
         <a th:href="@{/baohanh}"><i data-lucide="wrench"></i> Bảo hành</a>
         <a th:href="@{/baocao}"><i data-lucide="bar-chart-2"></i> Báo cáo</a>
         <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}"
@@ -172,7 +172,7 @@
         </div>
 
         <div class="stat-grid">
-            <div class="stat-card">
+            <div class="stat-card" th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}">
                 <div class="label"><i data-lucide="package"></i> Sản phẩm</div>
                 <div class="value">
                     <a th:href="@{/sanpham}" style="color:#6366f1">Xem danh sách</a>
@@ -185,7 +185,7 @@
                     <a th:href="@{/donhang}"><i data-lucide="shopping-bag"></i> Đơn online</a>
                 </div>
             </div>
-            <div class="stat-card orange">
+            <div class="stat-card orange" th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}">
                 <div class="label"><i data-lucide="download"></i> Nhập hàng</div>
                 <div class="value">
                     <a th:href="@{/phieunhap}" style="color:#ea580c">Phiếu nhập</a>
@@ -203,7 +203,8 @@
             <div class="card-title">Truy cập nhanh</div>
             <div style="display:flex;gap:12px;flex-wrap:wrap">
                 <a th:href="@{/hoadon/them}" class="btn btn-success"><i data-lucide="receipt"></i> Tạo hóa đơn</a>
-                <a th:href="@{/phieunhap/them}" class="btn btn-warning"><i data-lucide="download"></i> Nhập hàng</a>
+                <a th:if="${session.taiKhoan != null and session.taiKhoan.vaiTro == 'ADMIN'}"
+                   th:href="@{/phieunhap/them}" class="btn btn-warning"><i data-lucide="download"></i> Nhập hàng</a>
                 <a th:href="@{/baohanh/them}" class="btn btn-danger"><i data-lucide="wrench"></i> Tiếp nhận bảo hành</a>
                 <a th:href="@{/khachhang/them}" class="btn btn-primary"><i data-lucide="user"></i> Thêm khách hàng</a>
                 <a th:href="@{/baocao}" class="btn btn-secondary"><i data-lucide="bar-chart-2"></i> Xem báo cáo</a>

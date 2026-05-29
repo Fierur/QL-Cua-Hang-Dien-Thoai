@@ -37,7 +37,10 @@ public class SanPhamController {
 
     // Form thêm sản phẩm mới
     @GetMapping("/them")
-    public String them(Model model) {
+    public String them(Model model, HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/sanpham";
+        }
         model.addAttribute("sp", new SanPham());
         return "sanpham/them";
     }
@@ -46,7 +49,11 @@ public class SanPhamController {
     @PostMapping("/luu")
     public String luu(@ModelAttribute SanPham sp, 
                       @RequestParam(value = "files", required = false) org.springframework.web.multipart.MultipartFile[] files,
-                      @RequestParam(value = "links", required = false) String[] links) {
+                      @RequestParam(value = "links", required = false) String[] links,
+                      HttpSession session) {
+        if (!isAdmin(session)) {
+            return "redirect:/sanpham";
+        }
         
         java.util.List<String> hinhAnhs = new java.util.ArrayList<>();
         
@@ -155,5 +162,10 @@ public class SanPhamController {
         model.addAttribute("sp",
                 sanPhamRepository.findById(maSP).orElse(null));
         return "sanpham/chitiet";
+    }
+
+    private boolean isAdmin(HttpSession session) {
+        TaiKhoan tk = (TaiKhoan) session.getAttribute("taiKhoan");
+        return tk != null && tk.isAdmin();
     }
 }

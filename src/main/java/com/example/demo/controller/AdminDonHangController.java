@@ -61,7 +61,7 @@ public class AdminDonHangController {
         
         // Lấy danh sách IMEI còn trống cho từng sản phẩm trong đơn hàng
         for (ChiTietDonHang ct : dh.getChiTiet()) {
-            List<IMEI> availableImeis = imeiRepository.findBySanPhamAndTrangThai(ct.getSanPham(), "CHUA_BAN");
+            List<IMEI> availableImeis = imeiRepository.findBySanPhamAndTrangThai(ct.getSanPham(), "TRONG_KHO");
             model.addAttribute("imeis_" + ct.getSanPham().getMaSP(), availableImeis);
         }
         
@@ -88,7 +88,7 @@ public class AdminDonHangController {
             model.addAttribute("loi", "Vui lòng chọn đúng số lượng IMEI cho các sản phẩm.");
             model.addAttribute("dh", dh);
             for (ChiTietDonHang ct : dh.getChiTiet()) {
-                List<IMEI> availableImeis = imeiRepository.findBySanPhamAndTrangThai(ct.getSanPham(), "CHUA_BAN");
+                List<IMEI> availableImeis = imeiRepository.findBySanPhamAndTrangThai(ct.getSanPham(), "TRONG_KHO");
                 model.addAttribute("imeis_" + ct.getSanPham().getMaSP(), availableImeis);
             }
             return "DonHang/duyet";
