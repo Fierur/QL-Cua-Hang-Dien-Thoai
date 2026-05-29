@@ -156,6 +156,14 @@
         </div>
     </div>
     <div class="content">
+        <div class="alert alert-danger" th:if="${loi != null}">
+            <i data-lucide="alert-circle"></i>
+            <span th:text="${loi}"></span>
+        </div>
+        <div class="alert alert-success" th:if="${thanhCong != null}">
+            <i data-lucide="check-circle"></i>
+            <span th:text="${thanhCong}"></span>
+        </div>
         <div class="card">
             <div class="toolbar">
                 <form method="get" th:action="@{/sanpham}" class="toolbar-left">

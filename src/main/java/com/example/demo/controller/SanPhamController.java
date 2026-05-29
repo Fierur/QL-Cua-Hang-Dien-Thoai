@@ -5,9 +5,11 @@ import com.example.demo.entity.TaiKhoan;
 import com.example.demo.repository.SanPhamRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -166,10 +168,16 @@ public class SanPhamController {
 
     // Xóa sản phẩm (chỉ Admin)
     @GetMapping("/xoa/{maSP}")
-    public String xoa(@PathVariable int maSP, HttpSession session) {
+    public String xoa(@PathVariable int maSP, HttpSession session, RedirectAttributes redirectAttributes) {
         TaiKhoan tk = (TaiKhoan) session.getAttribute("taiKhoan");
         if (tk != null && tk.isAdmin()) {
-            sanPhamRepository.deleteById(maSP);
+            try {
+                sanPhamRepository.deleteById(maSP);
+                redirectAttributes.addFlashAttribute("thanhCong", "Đã xóa sản phẩm.");
+            } catch (DataAccessException ex) {
+                redirectAttributes.addFlashAttribute("loi",
+                        "Không thể xóa sản phẩm vì đã có dữ liệu nhập hàng, IMEI, hóa đơn, đơn hàng hoặc bảo hành liên quan.");
+            }
         }
         return "redirect:/sanpham";
     }
