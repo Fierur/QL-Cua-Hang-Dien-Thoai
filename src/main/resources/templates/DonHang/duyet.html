@@ -58,12 +58,15 @@
                                 <label class="text-sm font-medium text-slate-700 min-w-[80px]" th:text="'Máy ' + ${i} + ':'"></label>
                                 <select name="selectedImeis" class="flex-1" required>
                                     <option value="">-- Chọn IMEI xuất kho --</option>
-                                    <!-- Use dynamic model attribute name: imeis_1, imeis_2 -->
-                                    <option th:each="imei : ${__${'imeis_' + ct.sanPham.maSP}__}"
+                                    <option th:each="imei : ${imeisByProduct[ct.sanPham.maSP]}"
                                             th:value="${imei.imei}"
                                             th:text="${imei.imei}"></option>
                                 </select>
                             </div>
+                            <p th:if="${#lists.isEmpty(imeisByProduct[ct.sanPham.maSP])}"
+                               class="text-sm text-red-600">
+                                Không có IMEI TRONG_KHO cho sản phẩm này.
+                            </p>
                         </div>
                     </div>
                 </div>

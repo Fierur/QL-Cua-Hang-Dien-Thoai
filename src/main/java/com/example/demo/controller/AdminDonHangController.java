@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/donhang")
@@ -57,13 +61,7 @@ public class AdminDonHangController {
             return "redirect:/donhang";
         }
         
-        model.addAttribute("dh", dh);
-        
-        // Lấy danh sách IMEI còn trống cho từng sản phẩm trong đơn hàng
-        for (ChiTietDonHang ct : dh.getChiTiet()) {
-            List<IMEI> availableImeis = imeiRepository.findBySanPhamAndTrangThai(ct.getSanPham(), "TRONG_KHO");
-            model.addAttribute("imeis_" + ct.getSanPham().getMaSP(), availableImeis);
-        }
+        addDuyetData(model, dh);
         
         return "DonHang/duyet";
     }
@@ -71,7 +69,7 @@ public class AdminDonHangController {
     // 3. Xử lý duyệt đơn hàng và sinh Hóa Đơn
     @PostMapping("/duyet")
     public String xuLyDuyet(@RequestParam int maDH, 
-                            @RequestParam List<String> selectedImeis, 
+                            @RequestParam(value = "selectedImeis", required = false) List<String> selectedImeis,
                             HttpSession session, 
                             Model model) {
         TaiKhoan tk = getSessionAdmin(session);
@@ -86,12 +84,24 @@ public class AdminDonHangController {
         int requiredImeiCount = dh.getChiTiet().stream().mapToInt(ChiTietDonHang::getSoLuong).sum();
         if (selectedImeis == null || selectedImeis.size() != requiredImeiCount) {
             model.addAttribute("loi", "Vui lòng chọn đúng số lượng IMEI cho các sản phẩm.");
-            model.addAttribute("dh", dh);
-            for (ChiTietDonHang ct : dh.getChiTiet()) {
-                List<IMEI> availableImeis = imeiRepository.findBySanPhamAndTrangThai(ct.getSanPham(), "TRONG_KHO");
-                model.addAttribute("imeis_" + ct.getSanPham().getMaSP(), availableImeis);
-            }
+            addDuyetData(model, dh);
             return "DonHang/duyet";
+        }
+
+        Set<String> uniqueImeis = new HashSet<>(selectedImeis);
+        if (uniqueImeis.size() != selectedImeis.size()) {
+            model.addAttribute("loi", "Không được chọn trùng IMEI trong cùng đơn hàng.");
+            addDuyetData(model, dh);
+            return "DonHang/duyet";
+        }
+
+        for (String imeiStr : selectedImeis) {
+            IMEI imei = imeiRepository.findById(imeiStr).orElse(null);
+            if (imei == null || !"TRONG_KHO".equals(imei.getTrangThai())) {
+                model.addAttribute("loi", "IMEI " + imeiStr + " không tồn tại hoặc không còn trong kho.");
+                addDuyetData(model, dh);
+                return "DonHang/duyet";
+            }
         }
         
         // Tạo Hóa Đơn
@@ -153,5 +163,19 @@ public class AdminDonHangController {
             donHangRepository.save(dh);
         }
         return "redirect:/donhang";
+    }
+
+    private void addDuyetData(Model model, DonHang dh) {
+        model.addAttribute("dh", dh);
+
+        Map<Integer, List<IMEI>> imeisByProduct = new HashMap<>();
+        if (dh.getChiTiet() != null) {
+            for (ChiTietDonHang ct : dh.getChiTiet()) {
+                int maSP = ct.getSanPham().getMaSP();
+                List<IMEI> availableImeis = imeiRepository.findBySanPham_MaSPAndTrangThai(maSP, "TRONG_KHO");
+                imeisByProduct.put(maSP, availableImeis);
+            }
+        }
+        model.addAttribute("imeisByProduct", imeisByProduct);
     }
 }
