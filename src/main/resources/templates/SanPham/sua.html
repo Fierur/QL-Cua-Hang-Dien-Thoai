@@ -156,14 +156,28 @@
         </div>
     </div>
     <div class="content">
+        <div class="alert alert-danger" th:if="${loi != null}">
+            <i data-lucide="alert-circle"></i>
+            <span th:text="${loi}"></span>
+        </div>
         <div class="card" style="max-width:700px">
             <div class="card-title">Cập nhật thông tin sản phẩm</div>
             <form th:action="@{/sanpham/capnhat}" method="post" th:object="${sp}" enctype="multipart/form-data">
                 <input type="hidden" th:field="*{maSP}">
                 <div class="form-grid">
-                    <div class="form-group full">
-                        <label>Tên sản phẩm *</label>
-                        <input type="text" th:field="*{tenSP}" required>
+                    <div class="form-group">
+                        <label>Tên sản phẩm có sẵn</label>
+                        <select th:field="*{tenSP}">
+                            <option value="">-- Chọn tên sản phẩm --</option>
+                            <option th:each="item : ${dsSP}"
+                                    th:value="${item.tenSP}"
+                                    th:text="${item.tenSP}">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tên sản phẩm mới</label>
+                        <input type="text" name="tenSPMoi" placeholder="Nhập nếu muốn đổi sang tên mới chưa có trong SQL">
                     </div>
                     <div class="form-group">
                         <label>Hãng sản xuất</label>

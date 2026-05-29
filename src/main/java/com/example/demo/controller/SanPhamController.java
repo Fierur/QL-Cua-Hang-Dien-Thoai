@@ -42,17 +42,26 @@ public class SanPhamController {
             return "redirect:/sanpham";
         }
         model.addAttribute("sp", new SanPham());
+        model.addAttribute("dsSP", sanPhamRepository.findAll());
         return "sanpham/them";
     }
 
     // Lưu sản phẩm mới
     @PostMapping("/luu")
-    public String luu(@ModelAttribute SanPham sp, 
+    public String luu(@ModelAttribute SanPham sp,
+                      @RequestParam(value = "tenSPMoi", defaultValue = "") String tenSPMoi,
                       @RequestParam(value = "files", required = false) org.springframework.web.multipart.MultipartFile[] files,
                       @RequestParam(value = "links", required = false) String[] links,
-                      HttpSession session) {
+                      HttpSession session,
+                      Model model) {
         if (!isAdmin(session)) {
             return "redirect:/sanpham";
+        }
+        if (!applyProductName(sp, tenSPMoi)) {
+            model.addAttribute("sp", sp);
+            model.addAttribute("dsSP", sanPhamRepository.findAll());
+            model.addAttribute("loi", "Vui lòng chọn tên sản phẩm có sẵn hoặc nhập tên sản phẩm mới.");
+            return "sanpham/them";
         }
         
         java.util.List<String> hinhAnhs = new java.util.ArrayList<>();
@@ -94,15 +103,24 @@ public class SanPhamController {
     public String sua(@PathVariable int maSP, Model model) {
         model.addAttribute("sp",
                 sanPhamRepository.findById(maSP).orElse(null));
+        model.addAttribute("dsSP", sanPhamRepository.findAll());
         return "sanpham/sua";
     }
 
     // Cập nhật sản phẩm
     @PostMapping("/capnhat")
     public String capNhat(@ModelAttribute SanPham sp,
+                          @RequestParam(value = "tenSPMoi", defaultValue = "") String tenSPMoi,
                           @RequestParam(value = "files", required = false) org.springframework.web.multipart.MultipartFile[] files,
                           @RequestParam(value = "links", required = false) String[] links,
-                          @RequestParam(value = "keepImages", required = false) String[] keepImages) {
+                          @RequestParam(value = "keepImages", required = false) String[] keepImages,
+                          Model model) {
+        if (!applyProductName(sp, tenSPMoi)) {
+            model.addAttribute("sp", sp);
+            model.addAttribute("dsSP", sanPhamRepository.findAll());
+            model.addAttribute("loi", "Vui lòng chọn tên sản phẩm có sẵn hoặc nhập tên sản phẩm mới.");
+            return "sanpham/sua";
+        }
         
         java.util.List<String> hinhAnhs = new java.util.ArrayList<>();
         
@@ -167,5 +185,13 @@ public class SanPhamController {
     private boolean isAdmin(HttpSession session) {
         TaiKhoan tk = (TaiKhoan) session.getAttribute("taiKhoan");
         return tk != null && tk.isAdmin();
+    }
+
+    private boolean applyProductName(SanPham sp, String tenSPMoi) {
+        String newName = tenSPMoi == null ? "" : tenSPMoi.trim();
+        if (!newName.isEmpty()) {
+            sp.setTenSP(newName);
+        }
+        return sp.getTenSP() != null && !sp.getTenSP().trim().isEmpty();
     }
 }

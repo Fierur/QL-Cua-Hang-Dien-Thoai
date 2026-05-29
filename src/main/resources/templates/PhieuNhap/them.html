@@ -203,16 +203,12 @@
                 <div class="toolbar">
                     <div>
                         <div class="card-title" style="margin-bottom:4px">Sản phẩm nhập</div>
-                        <p class="help-text">Gõ đúng tên sản phẩm cũ để nhập thêm tồn kho, hoặc gõ tên mới và nhập giá bán để tạo sản phẩm mới.</p>
+                        <p class="help-text">Chọn sản phẩm đã có trong hệ thống. Nếu chưa có, admin thêm trước ở trang Sản phẩm rồi quay lại nhập hàng.</p>
                     </div>
                     <button type="button" class="btn btn-success" id="addLineBtn">
                         <i data-lucide="plus"></i> Thêm sản phẩm
                     </button>
                 </div>
-
-                <datalist id="productNames">
-                    <option th:each="sp : ${dsSP}" th:value="${sp.tenSP}"></option>
-                </datalist>
 
                 <div id="productLines" class="flex flex-col gap-5"></div>
 
@@ -234,11 +230,21 @@
 
 <script th:inline="javascript">
     const initialLines = /*[[${formLines}]]*/ [
-        {tenSP: '', giaBan: '', soLuong: '1', giaNhap: '', imeis: ['']}
+        {tenSP: '', soLuong: '1', giaNhap: '', imeis: ['']}
     ];
+    const productNames = /*[[${dsSP.![tenSP]}]]*/ [];
 
     const linesContainer = document.getElementById('productLines');
     const addLineBtn = document.getElementById('addLineBtn');
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
     function renumberLines() {
         document.querySelectorAll('.product-line').forEach((line, index) => {
@@ -293,11 +299,10 @@
             <div class="product-grid">
                 <div class="form-group lg:col-span-2">
                     <label>Sản phẩm nhập *</label>
-                    <input type="text" name="tenSP" list="productNames" data-product-name placeholder="Tên sản phẩm" required>
-                </div>
-                <div class="form-group">
-                    <label>Giá bán nếu sản phẩm mới</label>
-                    <input type="number" name="giaBan" min="0" data-sale-price placeholder="VD: 34990000">
+                    <select name="tenSP" data-product-name required>
+                        <option value="">-- Chọn sản phẩm --</option>
+                        ${productNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('')}
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Số lượng *</label>
@@ -312,7 +317,6 @@
         `;
 
         line.querySelector('[data-product-name]').value = data?.tenSP || '';
-        line.querySelector('[data-sale-price]').value = data?.giaBan || '';
         line.querySelector('[data-quantity]').value = data?.soLuong || '1';
         line.querySelector('[data-import-price]').value = data?.giaNhap || '';
 
@@ -340,7 +344,6 @@
 
     addLineBtn.addEventListener('click', () => createProductLine({
         tenSP: '',
-        giaBan: '',
         soLuong: '1',
         giaNhap: '',
         imeis: ['']

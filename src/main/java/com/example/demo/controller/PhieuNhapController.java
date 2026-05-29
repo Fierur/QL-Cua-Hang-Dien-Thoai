@@ -67,7 +67,6 @@ public class PhieuNhapController {
                       @RequestParam(value = "sdtNCCMoi", defaultValue = "") String sdtNCCMoi,
                       @RequestParam(value = "diaChiNCCMoi", defaultValue = "") String diaChiNCCMoi,
                       @RequestParam(value = "tenSP", required = false) List<String> tenSPList,
-                      @RequestParam(value = "giaBan", required = false) List<String> giaBanList,
                       @RequestParam(value = "soLuong", required = false) List<String> soLuongList,
                       @RequestParam(value = "giaNhap", required = false) List<String> giaNhapList,
                       @RequestParam(value = "ghiChu", defaultValue = "") String ghiChu,
@@ -78,7 +77,7 @@ public class PhieuNhapController {
             return "redirect:/admin";
         }
 
-        List<FormLine> formLines = buildFormLines(tenSPList, giaBanList, soLuongList, giaNhapList, request);
+        List<FormLine> formLines = buildFormLines(tenSPList, soLuongList, giaNhapList, request);
         List<String> errors = new ArrayList<>();
 
         NhaCungCap ncc = resolveSupplier(maNCC, tenNCCMoi, sdtNCCMoi, diaChiNCCMoi, errors);
@@ -110,13 +109,6 @@ public class PhieuNhapController {
 
         for (ImportLine line : importLines) {
             SanPham sp = line.sanPham;
-            if (sp == null) {
-                sp = new SanPham();
-                sp.setTenSP(line.tenSP);
-                sp.setGiaBan(line.giaBan);
-                sp.setSoLuongTon(0);
-                sp = sanPhamRepository.save(sp);
-            }
 
             ChiTietPhieuNhap chiTiet = new ChiTietPhieuNhap();
             chiTiet.setId(new ChiTietPhieuNhapId(savedPn.getMaPN(), sp.getMaSP()));
@@ -229,7 +221,6 @@ public class PhieuNhapController {
 
             Integer soLuong = parsePositiveInt(formLine.getSoLuong());
             Long giaNhap = parseNonNegativeLong(formLine.getGiaNhap());
-            Long giaBan = parseNonNegativeLong(formLine.getGiaBan());
             List<SanPham> existingProducts = sanPhamRepository.findByTenSP(tenSP);
             SanPham existingProduct = existingProducts.isEmpty() ? null : existingProducts.get(0);
 
@@ -239,8 +230,8 @@ public class PhieuNhapController {
             if (giaNhap == null) {
                 errors.add("Dòng " + displayIndex + ": giá nhập không hợp lệ.");
             }
-            if (existingProduct == null && giaBan == null) {
-                errors.add("Dòng " + displayIndex + ": sản phẩm mới cần nhập giá bán.");
+            if (existingProduct == null) {
+                errors.add("Dòng " + displayIndex + ": sản phẩm chưa có trong hệ thống, vui lòng thêm thủ công ở trang Sản phẩm trước khi nhập hàng.");
             }
 
             List<String> cleanImeis = new ArrayList<>();
@@ -265,8 +256,8 @@ public class PhieuNhapController {
                 }
             }
 
-            if (soLuong != null && giaNhap != null && (existingProduct != null || giaBan != null)) {
-                importLines.add(new ImportLine(tenSP, existingProduct, giaBan, soLuong, giaNhap, cleanImeis));
+            if (soLuong != null && giaNhap != null && existingProduct != null) {
+                importLines.add(new ImportLine(existingProduct, soLuong, giaNhap, cleanImeis));
             }
         }
 
@@ -274,7 +265,6 @@ public class PhieuNhapController {
     }
 
     private List<FormLine> buildFormLines(List<String> tenSPList,
-                                          List<String> giaBanList,
                                           List<String> soLuongList,
                                           List<String> giaNhapList,
                                           HttpServletRequest request) {
@@ -284,7 +274,6 @@ public class PhieuNhapController {
         for (int i = 0; i < rowCount; i++) {
             FormLine line = new FormLine();
             line.setTenSP(getValue(tenSPList, i));
-            line.setGiaBan(getValue(giaBanList, i));
             line.setSoLuong(getValue(soLuongList, i));
             line.setGiaNhap(getValue(giaNhapList, i));
 
@@ -338,16 +327,12 @@ public class PhieuNhapController {
 
     public static class FormLine {
         private String tenSP = "";
-        private String giaBan = "";
         private String soLuong = "1";
         private String giaNhap = "";
         private List<String> imeis = new ArrayList<>(List.of(""));
 
         public String getTenSP() { return tenSP; }
         public void setTenSP(String tenSP) { this.tenSP = tenSP; }
-
-        public String getGiaBan() { return giaBan; }
-        public void setGiaBan(String giaBan) { this.giaBan = giaBan; }
 
         public String getSoLuong() { return soLuong; }
         public void setSoLuong(String soLuong) { this.soLuong = soLuong; }
@@ -360,17 +345,13 @@ public class PhieuNhapController {
     }
 
     private static class ImportLine {
-        private final String tenSP;
         private final SanPham sanPham;
-        private final long giaBan;
         private final int soLuong;
         private final long giaNhap;
         private final List<String> imeis;
 
-        private ImportLine(String tenSP, SanPham sanPham, Long giaBan, int soLuong, long giaNhap, List<String> imeis) {
-            this.tenSP = tenSP;
+        private ImportLine(SanPham sanPham, int soLuong, long giaNhap, List<String> imeis) {
             this.sanPham = sanPham;
-            this.giaBan = giaBan == null ? 0 : giaBan;
             this.soLuong = soLuong;
             this.giaNhap = giaNhap;
             this.imeis = imeis;
