@@ -5,9 +5,11 @@ import com.example.demo.entity.TaiKhoan;
 import com.example.demo.repository.KhachHangRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -68,10 +70,16 @@ public class KhachHangController {
 
     // Xóa khách hàng (chỉ Admin)
     @GetMapping("/xoa/{maKH}")
-    public String xoa(@PathVariable int maKH, HttpSession session) {
+    public String xoa(@PathVariable int maKH, HttpSession session, RedirectAttributes redirectAttributes) {
         TaiKhoan tk = (TaiKhoan) session.getAttribute("taiKhoan");
         if (tk != null && tk.isAdmin()) {
-            khachHangRepository.deleteById(maKH);
+            try {
+                khachHangRepository.deleteById(maKH);
+                redirectAttributes.addFlashAttribute("thanhCong", "Đã xóa khách hàng.");
+            } catch (DataAccessException ex) {
+                redirectAttributes.addFlashAttribute("loi",
+                        "Không thể xóa khách hàng vì đã có hóa đơn, đơn hàng, giỏ hàng, đánh giá hoặc bảo hành liên quan.");
+            }
         }
         return "redirect:/khachhang";
     }

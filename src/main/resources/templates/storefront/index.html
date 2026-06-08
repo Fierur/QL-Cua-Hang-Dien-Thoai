@@ -106,6 +106,7 @@
                     Tất cả
                 </a>
                 <a th:each="h : ${dsHangSX}"
+                   th:if="${h != null and !#strings.isEmpty(#strings.trim(h))}"
                    th:href="@{/products(hangSX=${h})}"
                    th:text="${h}"
                    class="px-5 py-2.5 rounded-xl text-sm font-semibold border bg-white text-slate-700 border-slate-200 hover:border-indigo-300 hover:text-indigo-600 transition-all">

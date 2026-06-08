@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.*;
 import com.example.demo.repository.*;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,7 +12,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -254,9 +258,15 @@ public class StorefrontController {
 
     // 4. Thêm vào giỏ hàng
     @PostMapping("/cart/add")
-    public String addToCart(@RequestParam int maSP, @RequestParam(defaultValue = "1") int soLuong, HttpSession session) {
+    public String addToCart(@RequestParam int maSP,
+                            @RequestParam(defaultValue = "1") int soLuong,
+                            HttpSession session,
+                            HttpServletRequest request,
+                            RedirectAttributes redirectAttributes) {
         KhachHang kh = getSessionCustomer(session);
         if (kh == null) return "redirect:/login";
+
+        String redirectTo = getRedirectToPreviousPage(request);
 
         GioHang gh = gioHangRepository.findByKhachHang(kh);
         if (gh == null) {
@@ -266,8 +276,18 @@ public class StorefrontController {
 
         SanPham sp = sanPhamRepository.findById(maSP).orElse(null);
         if (sp != null) {
+            soLuong = Math.max(1, soLuong);
             ChiTietGioHangId id = new ChiTietGioHangId(gh.getMaGH(), maSP);
             ChiTietGioHang ct = chiTietGioHangRepository.findById(id).orElse(null);
+            int soLuongTrongGio = ct != null ? ct.getSoLuong() : 0;
+            int soLuongSauKhiThem = soLuongTrongGio + soLuong;
+
+            if (soLuongSauKhiThem > sp.getSoLuongTon()) {
+                redirectAttributes.addFlashAttribute("loi",
+                        "Không thể thêm " + soLuongSauKhiThem + " sản phẩm vào giỏ. Tồn kho chỉ còn "
+                                + sp.getSoLuongTon() + " sản phẩm.");
+                return redirectTo;
+            }
 
             if (ct != null) {
                 ct.setSoLuong(ct.getSoLuong() + soLuong);
@@ -275,9 +295,10 @@ public class StorefrontController {
                 ct = new ChiTietGioHang(gh, sp, soLuong);
             }
             chiTietGioHangRepository.save(ct);
+            redirectAttributes.addFlashAttribute("thanhCong", "Đã thêm sản phẩm vào giỏ hàng.");
         }
 
-        return "redirect:/cart";
+        return redirectTo;
     }
 
     // 5. Xóa khỏi giỏ hàng
@@ -397,5 +418,26 @@ public class StorefrontController {
         model.addAttribute("orderImeis", orderImeis);
 
         return "storefront/orders";
+    }
+
+    private String getRedirectToPreviousPage(HttpServletRequest request) {
+        String referer = request.getHeader("Referer");
+        if (referer == null || referer.isBlank()) {
+            return "redirect:/cart";
+        }
+
+        try {
+            URI uri = new URI(referer);
+            boolean sameHost = uri.getHost() == null || uri.getHost().equalsIgnoreCase(request.getServerName());
+            if (!sameHost) {
+                return "redirect:/cart";
+            }
+
+            String path = uri.getRawPath() == null || uri.getRawPath().isBlank() ? "/" : uri.getRawPath();
+            String query = uri.getRawQuery();
+            return "redirect:" + path + (query == null ? "" : "?" + query);
+        } catch (URISyntaxException ex) {
+            return "redirect:/cart";
+        }
     }
 }

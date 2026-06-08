@@ -174,7 +174,16 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" th:insert="${content}">
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div th:if="${loi != null}" class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 flex items-center gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4"></i>
+            <span th:text="${loi}"></span>
+        </div>
+        <div th:if="${thanhCong != null}" class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 flex items-center gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span th:text="${thanhCong}"></span>
+        </div>
+        <th:block th:insert="${content}"></th:block>
     </main>
 
     <!-- ═══════════════════════════════════════════════════════ -->
